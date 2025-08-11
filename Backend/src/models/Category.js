@@ -44,6 +44,10 @@ const categorySchema = new mongoose.Schema({
         ref: 'User',
         required: true,
     },
+    updatedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+    }
 }, {
     timestamps: true,
 });
@@ -57,6 +61,7 @@ categorySchema.pre('save', function(next) {
 
 categorySchema.pre('findOneAndUpdate', function(next) {
     const update = this.getUpdate();
+
     if (update.name) {
         update.slug = update.name.toLowerCase().replace(/[a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
     }
@@ -64,6 +69,30 @@ categorySchema.pre('findOneAndUpdate', function(next) {
     next();
 });
 
-const Category = mongoose.model('Category', categorySchema);
+categorySchema.virtual('productCount', {
+    ref: 'Product',
+    localField: '_id',
+    foreignField: 'category',
+    count: true,
+});
 
-module.exports = Category;
+categorySchema.static.findActive = function() {
+    return this.find({ isActive: true }).sort({ sortOrder: 1, name: 1 });
+};
+
+categorySchema.methods.canBeDeleted = async function() {
+    const Subcategory = mongoose.model('Subcategory');
+    const Product = mongoose.model('Product');
+
+    const subcategoriesCount = await Subcategory.countDocuments({ Category: this._id });
+    const productCount = await Product.countDocuments({ category: this._id });
+
+    return subcategoriesCount === 0 && productCount === 0;
+};
+
+categorySchema.index({ isActive: 1 });
+categorySchema.index({ sortOrder: 1 });
+categorySchema.index({ createdBy: 1 });
+
+
+module.exports = mongoose.model('Category', categorySchema);

@@ -108,6 +108,4 @@ userSchema.methods.toJSON = function () {
 userSchema.index({role: 1});
 userSchema.index({isActive: 1}); 
 
-const User = mongoose.model('User', userSchema);
-
-module.exports = User;
+module.exports = mongoose.model('User', userSchema);

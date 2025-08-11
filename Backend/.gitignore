@@ -1,0 +1,30 @@
+# Node modules (todas las dependencias)
+Backend/node_modules/
+
+# Archivos de entorno
+Backend/.env
+
+# Archivos de logs
+Backend/npm-debug.log*
+Backend/yarn-debug.log*
+Backend/yarn-error.log*
+
+# Archivos de salida
+Backend/dist/
+Backend/build/
+
+# Archivos del sistema
+Backend/.DS_Store
+Backend/Thumbs.db
+
+Backend/npm-debug.log*
+Backend/yarn-debug.log*
+Backend/yarn-error.log*
+
+# Archivos de salida
+Backend/dist/
+Backend/build/
+
+# Archivos del sistema
+Backend/.DS_Store
+Backend/Thumbs.db

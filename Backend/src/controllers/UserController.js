@@ -231,5 +231,62 @@ const toggleUserStatus = asyncHandler(async (req, res) => {
         });
     }
 
-    
+    user.isActive = !user.isActive;
+    user.updatedBy = req.user._id;
+    await user.save();
+    res.status(200).json({
+        success: true,
+        data: user,
+        message: `Usuario ${user.isActive ? 'activado' : 'desactivado'} correctamente`
+    });
 });
+
+//optimizar lqw estadisticas de los usuarios
+const getUserStats = asyncHandler(async (req, res) => {
+    const stats = await  User.aggregate([
+        {
+            $group: {
+                _id: null,
+                totalUsers: { $sum: 1 },
+                activeUsers: { 
+                    $sum: { $cond: [{ $eq: ['$isActive', true] }, 1, 0] } 
+                },
+                adminUsers: { 
+                    $sum: { $cond: [{ $eq: ['$role', 'admin'] }, 1, 0] } 
+                },
+                CoordinadorUsers: { 
+                    $sum: { $cond: [{ $eq: ['$role', 'coordinador'] }, 1, 0] } 
+                },
+                inactiveUsers: { 
+                    $sum: { $cond: [{ $eq: ['$isActive', false] }, 1, 0] } 
+                }
+            }
+        }
+    ]);
+
+    const recentUsers = await User.find().sort({ createdAt: -1 }).limit(5).select('username firstName lastName email role createdAt');
+
+    res.status(200).json({
+        success: true,
+        data: { 
+            stats: stats[0] || {
+                totalUsers: 0,
+                activeUsers: 0,
+                adminUsers: 0,
+                CoordinadorUsers: 0,
+                inactiveUsers: 0
+            },
+            recentUsers
+        }
+    });
+});
+
+module.exports = {
+    getUsers,
+    getUserById,
+    createUser,
+    updateUser,
+    deleteUser,
+    toggleUserStatus,
+    getUserStats
+};

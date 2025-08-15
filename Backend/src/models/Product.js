@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { validate } = require('./Subcategory');
 
 const productSchema = new mongoose.Schema({
     name:{
@@ -119,22 +120,6 @@ const productSchema = new mongoose.Schema({
             type: Number,
             min: [0, 'La altura no puede ser negativa'],
         },
-        images:[{
-            url:{
-                type: String,
-                required: [true, 'La URL de la imagen es obligatoria'],
-                trim: true,
-            },
-            alt: {
-                type: String,
-                trim: true,
-                maxlength: [200, 'El texto alternativo de la imagen no puede exceder los 200 caracteres'],
-            },
-            isPrimary:{
-                type: Boolean,
-                default: false,
-            }
-        }],
         tags: [{
             type: String,
             trim: true,
@@ -142,6 +127,22 @@ const productSchema = new mongoose.Schema({
             maxlength: [50, 'cada etiqueta no puede exceder los 50 caracteres'],
         }]
     },
+    images:[{
+        url:{
+            type: String,
+            required: [true, 'La URL de la imagen es obligatoria'],
+            trim: true,
+        },
+        alt: {
+            type: String,
+            trim: true,
+            maxlength: [200, 'El texto alternativo de la imagen no puede exceder los 200 caracteres'],
+        },
+        isPrimary:{
+            type: Boolean,
+            default: false,
+        }
+    }],
     isActive: {
         type: Boolean,
         default: true,

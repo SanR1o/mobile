@@ -46,8 +46,27 @@ const getCategories = asyncHandler(async (req, res) => {
     });
 });
 
-const getActiveCategories = asyncHandler(async (req, res) => {
-    const categories = await Category.find({ isActive: true });
+//ordenar categorias
+const sortCategories = asyncHandler(async (req, res) => {
+    const { sortOrder } = req.body;
+    if (!Array.isArray(sortOrder) || sortOrder.length === 0) {
+        res.status(400).json({
+            success: false,
+            message: 'El orden debe ser un arreglo no vacío'
+        });
+        return;
+    }
+
+    // Actualizar el orden de las categorías
+    const bulkOps = sortOrder.map((id, index) => ({
+        updateOne: {
+            filter: { _id: id },
+            update: { sortOrder: index }
+        }
+    }));
+
+    await Category.bulkWrite(bulkOps);
+
     res.status(200).json({
         success: true,
         data: categories
@@ -194,6 +213,26 @@ const deleteCategory = asyncHandler(async (req, res) => {
         message: 'Categoría eliminada correctamente'
     });
 
+    //verificar que no tenga subcategorias
+    const subcategories = await Subcategory.find({ category: category._id });
+    if (subcategories.length > 0) {
+        res.status(400).json({
+            success: false,
+            message: 'No se puede eliminar esta categoría porque tiene subcategorías asociadas'
+        });
+        return;
+    }
+
+    //verificar que no tenga productos asociados
+    const products = await Product.find({ category: category._id });
+    if (products.length > 0) {
+        res.status(400).json({
+            success: false,
+            message: 'No se puede eliminar esta categoría porque tiene productos asociados'
+        });
+        return;
+    }
+
     //solo admin puede eliminar
     if (!req.user || req.user.role !== 'admin') {
         res.status(403).json({
@@ -234,6 +273,41 @@ const toggleCategoryStatus = asyncHandler(async (req, res) => {
     }
 });
 
+const getCategoriesWithStats = asyncHandler(async (req, res) => {
+    const categoriesWithSubcounts = await Category.aggregate([
+        {
+            $lookup: {
+                from: 'subcategories',
+                localField: '_id',
+                foreignField: 'category',
+                count: 'subcategoriesCount'
+            }
+        },
+        {
+            $project: {
+                name: 1,
+                categoryName: { $ArrayElemAt: ['$categoryInfo.name', 0] },
+                subcategoriesCount: {$size: '$subcategories'},
+                productsCount: 1
+            }
+        },
+        { $sort: { productsCount: -1 } },
+        { $limit: 5}
+    ]);
+
+    res.status(200).json({
+        success: true,
+        data: {
+            stats: stats[0] || {
+                totalCategories: 0,
+                totalSubcategories: 0,
+                totalProducts: 0
+            },
+            subcategories: subcategoriesWithSubcounts
+        }
+    });
+});
+
 module.exports = {
     getCategories,
     getActiveCategories,
@@ -241,5 +315,7 @@ module.exports = {
     createCategory,
     updateCategory,
     deleteCategory,
-    toggleCategoryStatus
+    toggleCategoryStatus,
+    sortCategories,
+    getCategoriesWithStats
 };

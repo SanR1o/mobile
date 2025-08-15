@@ -176,4 +176,70 @@ const updateCategory = asyncHandler(async (req, res) => {
     });
 });
 
-//
+//eliminar una categoria
+const deleteCategory = asyncHandler(async (req, res) => {
+    const category = await Category.findById(req.params.id);
+    if (!category) {
+        res.status(404).json({
+            success: false,
+            message: 'Categoría no encontrada'
+        });
+        return;
+    }
+
+    await category.remove();
+
+    res.status(200).json({
+        success: true,
+        message: 'Categoría eliminada correctamente'
+    });
+
+    //solo admin puede eliminar
+    if (!req.user || req.user.role !== 'admin') {
+        res.status(403).json({
+            success: false,
+            message: 'No tienes permiso para eliminar esta categoría'
+        });
+        return;
+    }
+});
+
+//activar o desactivar una categoria
+const toggleCategoryStatus = asyncHandler(async (req, res) => {
+    const category = await Category.findById(req.params.id);
+    if (!category) {
+        res.status(404).json({
+            success: false,
+            message: 'Categoría no encontrada'
+        });
+        return;
+    }
+
+    category.isActive = !category.isActive;
+    await category.save();
+
+    res.status(200).json({
+        success: true,
+        message: 'Estado de la categoría actualizado correctamente',
+        data: category
+    });
+
+    //solo admin puede cambiar estado
+    if (!req.user || req.user.role !== 'admin') {
+        res.status(403).json({
+            success: false,
+            message: 'No tienes permiso para cambiar el estado de esta categoría'
+        });
+        return;
+    }
+});
+
+module.exports = {
+    getCategories,
+    getActiveCategories,
+    getCategoryById,
+    createCategory,
+    updateCategory,
+    deleteCategory,
+    toggleCategoryStatus
+};

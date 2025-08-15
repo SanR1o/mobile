@@ -241,7 +241,7 @@ const toggleUserStatus = asyncHandler(async (req, res) => {
     });
 });
 
-//optimizar lqw estadisticas de los usuarios
+//optimizar las estadisticas de los usuarios
 const getUserStats = asyncHandler(async (req, res) => {
     const stats = await  User.aggregate([
         {

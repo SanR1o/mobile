@@ -492,37 +492,103 @@ const toggleProductStatus = asyncHandler(async (req, res) => {
 });
 
 const getProductStats = asyncHandler(async (req, res) => {
-    const productWithSubcounts = await Subcategory.aggregate([
+    const stats = await Subcategory.aggregate([
         {  
-            $lookup: {
-                from: 'products',
-                localField: '_id',
-                foreignField: 'subcategory',
-                count: 'categoriesCount',
-                
+            $group: {
+                _id: null,
+                totalProducts: { $sum: 1 },
+                activateProducts: { $sum: { $cond: ['$isActive', 1, 0] } },
+                featuredProducts: { $sum: { $cond: ['$isFeatured', 1, 0] } },
+                digitalProducts: { $sum: { $cond: ['$isDigital', 1, 0] } },
+                totalValue: { $sum: '$price' },
+                averagePrice: { $avg: '$price' },
             }
-        },
-        {
-            $project: {
-                name: 1,
-                categoryName: { $ArrayElemAt: ['$categoryInfo.name', 0] },
-                subcategoriesCount: {$size: '$subcategories'},
-                productsCount: 1
-            }
-        },
-        { $sort: { productsCount: -1 } },
-        { $limit: 5}
+        }
     ]);
+
+    //productos con stock bajo
+    const lowStockProducts = await Product.find({ 
+        'stock.trackStock': true, 
+        $expr: { $lt: ['$stock.quantity', '$stock.minStock'] }
+    }).select('name sku stock.quantity stock.minStock')
+    .limit(10);
+
+    const expensiveProducts = await Product.find({ isActive: true })
+    .sort({ price: -1 })
+    .limit(5)
+    .select('name sku price');
 
     res.status(200).json({
         success: true,
         data: {
             stats: stats[0] || {
-                totalCategories: 0,
-                totalSubcategories: 0,
-                totalProducts: 0
+                totalProducts: 0,
+                activateProducts: 0,
+                featuredProducts: 0,
+                digitalProducts: 0,
+                totalValue: 0,
+                averagePrice: 0
             },
-            products: productWithSubcounts
+            lowStockProducts,
+            expensiveProducts
+        }
+    });
+});
+
+const updateProductStock = asyncHandler(async (req, res) => {
+    const { productId, quantity } = req.body;
+
+    const product = await Product.findById(productId);
+    if (!product) {
+        res.status(404).json({
+            success: false,
+            message: 'Producto no encontrado'
+        });
+        return;
+    }
+
+    if (!product.stock.trackStock) {
+        return res.status(400).json({
+            success: false,
+            message: 'El producto no está configurado para rastrear el stock'
+        });
+    }
+
+    //operaciones set add substract
+    switch (operation) {
+        case 'set':
+            product.stock.quantity = quantity;
+            break;
+        case 'add':
+            product.stock.quantity += quantity;
+            break;
+        case 'subtract':
+            product.stock.quantity -= quantity;
+            break;
+        default:
+            return res.status(400).json({
+                success: false,
+                message: 'Operación no válida'
+            });
+    }
+
+    product.updatedBy = req.user._id;
+    if (product.stock.quantity < 0) {
+        product.stock.quantity = 0; // Asegurarse de que la cantidad no sea negativa
+    }
+
+    await product.save();
+
+    res.status(200).json({
+        success: true,
+        message: 'Stock del producto actualizado correctamente',
+        data: {
+            sku: product.sku,
+            name: product.name,
+            previousStock: product.stock.quantity,
+            newStock: product.stock.quantity,
+            isLowStock: product.isLowStock,
+            isOutOfStock: product.isOutOfStock
         }
     });
 });
@@ -540,5 +606,6 @@ module.exports = {
     deleteProduct,
     toggleProductStatus,
     getFeaturedProducts,
-    getProductStats
+    getProductStats,
+    updateProductStock
 };

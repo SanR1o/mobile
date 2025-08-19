@@ -104,6 +104,10 @@ userSchema.methods.toJSON = function () {
     return userObject;
 };
 
+userSchema.virtual('fullname').get(function () {
+    return `${this.firstName} ${this.lastName}`;
+});
+
 // campo virtual para el token de acceso
 userSchema.index({role: 1});
 userSchema.index({isActive: 1}); 

@@ -7,7 +7,7 @@ const errorHandler = (err, req, res, next) => {
         return res.status(400).json({
             success: false,
             message: 'Error de validación',
-            errors: err.errors
+            errors: errors
         });
     }
 
@@ -24,7 +24,7 @@ const errorHandler = (err, req, res, next) => {
     if (err.name === 'CastError') {
         return res.status(400).json({
             success: false,
-            message: 'ID de usuario inválido'
+            message: 'ID inválido'
         });
     }
 
@@ -45,9 +45,45 @@ const errorHandler = (err, req, res, next) => {
     }
 
 
-
     res.status(err.statusCode || 500).json({
         success: false,
-        message: 'Error interno del servidor'
+        message: err.message || 'Error interno del servidor'
     });
 };
+
+//Middlewares para rutas no encontradas
+
+const noFound = (req, res, next) => {
+    const error = new Error(`Ruta no encontrada - ${req.originalUrl}`);
+    res.status(404);
+    next(error)
+};
+
+//middleware para validar objectId
+const validateObjectId = (paramName = 'id') => {
+    return (req, res, next) => {
+        const mongoose = require('mongoose');
+        const id = req.params[paramName];
+
+        if (!mongoose.Types.ObjectId.isValid(id)){
+            return res.status(400).json({
+                success: false,
+                message: 'ID inválido'
+            })
+        }
+
+        next();
+    };
+};
+
+//capturar errores asincronicos
+const asyncHandler =  (fn) => (req, res, next) => {
+    Promise.resolve(fn(req, res, next)).catch(next);
+};
+
+module.exports = {
+    errorHandler,
+    noFound,
+    validateObjectId,
+    asyncHandler
+}

@@ -98,6 +98,18 @@ const getCategoryById = asyncHandler(async (req, res) => {
     });
 });
 
+const getActiveCategories = asyncHandler(async (req, res) => {
+    const filter = { isActive: true };
+    const category = await Product.find(filter)
+        .populate('createdBy', 'username firstname lastname')
+        .populate('category', 'name')
+        .sort({ sortOrder: 1, name: 1 });
+    res.status(200).json({
+        success: true,
+        data: category
+    });
+});
+
 //crear categoria
 const createCategory = asyncHandler(async (req, res) => {
     const { 
@@ -303,7 +315,7 @@ const getCategoriesWithStats = asyncHandler(async (req, res) => {
                 totalSubcategories: 0,
                 totalProducts: 0
             },
-            subcategories: subcategoriesWithSubcounts
+            subcategories: categoriesWithSubcounts
         }
     });
 });

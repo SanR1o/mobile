@@ -86,8 +86,6 @@ const verifyRole = (...alowedRoles) => {
     }
 };
 
-const verifyAdmin = jwt.verifyRole('admin');
-
 const verifyAdminCoordinador = (req, res, next) => {
     return verifyRole('admin', 'coordinador')(req, res, next);
 };
@@ -123,6 +121,8 @@ const verifyAdminOrOwner = (req, res, next) => {
         });
     }
 };
+
+const verifyAdmin = verifyRole('admin');
 
 module.exports = { 
     verifyToken, 

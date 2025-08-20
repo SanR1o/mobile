@@ -62,6 +62,16 @@ const login = asyncHandler(async (req, res) => {
     }
     user.lastlogin = new Date();
     await user.save();
+    // Preparar respuesta de usuario sin datos sensibles
+    const userResponse = {
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        isActive: user.isActive,
+        lastlogin: user.lastlogin
+        // Agrega otros campos necesarios, pero nunca password
+    };
     //Generar token JWT
     console.log('Generando token JWT...');
     const token = generateToken(user._id);
@@ -72,7 +82,7 @@ const login = asyncHandler(async (req, res) => {
         data: {
             user: userResponse,
             token: token,
-            expiresIn: proccess.env.JWT_EXPIRES_IN || '1h'
+            expiresIn: process.env.JWT_EXPIRES_IN || '1h'
         }
     });
 
@@ -88,9 +98,24 @@ const login = asyncHandler(async (req, res) => {
 //obtener info del usuario autenticado
 const getMe = asyncHandler(async (req, res) => {
     const user = await User.findById(req.user._id);
+    if (!user) {
+        return res.status(404).json({
+            success: false,
+            message: 'Usuario no encontrado'
+        });
+    }
+    // Filtrar datos sensibles
+    const userResponse = {
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        isActive: user.isActive,
+        lastlogin: user.lastlogin
+    };
     res.status(200).json({
         success: true,
-        data: user
+        data: userResponse
     });
 });
 

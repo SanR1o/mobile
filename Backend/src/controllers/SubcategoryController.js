@@ -292,7 +292,7 @@ const toggleSubcategoryStatus = asyncHandler(async (req, res) => {
     }
 });
 
-const getSubcategoriesStats = asyncHandler(async (req, res) => {
+const getSubcategoriesWithStats = asyncHandler(async (req, res) => {
     const subcategoriesWithSubcounts = await Subcategory.aggregate([
         {  
             $lookup: {
@@ -352,6 +352,5 @@ module.exports = {
     createSubcategory,
     updateSubcategory,
     deleteSubcategory,
-    toggleSubcategoryStatus,
-    getSubcategoriesStats
+    toggleSubcategoryStatus
 };

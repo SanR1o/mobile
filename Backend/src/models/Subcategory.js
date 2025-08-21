@@ -36,15 +36,7 @@ const subcategorySchema = new mongoose.Schema({
     category: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Category',
-        required: [true, 'La categoría es obligatoria'],
-        validate: {
-            validator: async function(categoryId) {
-                const Category = mongoose.model('Category');
-                const category = await Category.findById(categoryId);
-                return category && category.isActive;
-            },
-            message: 'La categoría debe existir y estar activa',
-        }
+        required: [true, 'La categoría es obligatoria']
     },
     sortOrder: {
         type: Number,
@@ -64,16 +56,29 @@ const subcategorySchema = new mongoose.Schema({
 });
 
 subcategorySchema.pre('save', function(next) {
-    if (this.isModified('name')) {
-        this.slug = this.name.toLowerCase().replace(/[a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+    if (this.isModified('name') && !this.slug) {
+        this.slug = this.name
+            .toLowerCase()
+            .trim()
+            .replace(/[áàäâ]/g, 'a')
+            .replace(/[éèëê]/g, 'e')
+            .replace(/[íìïî]/g, 'i')
+            .replace(/[óòöô]/g, 'o')
+            .replace(/[úùüû]/g, 'u')
+            .replace(/[ñ]/g, 'n')
+            .replace(/[ç]/g, 'c')
+            .replace(/[^\w\s-]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-')
+            .replace(/^-|-$/g, '');
     }
     next();
 });
 
-subcategorySchema.pre('save', function(next) {
+subcategorySchema.pre('save', async function(next) {
     if (this.isModified('category')) {
         const Category = mongoose.model('Category');
-        const category = Category.findById(this.category);
+        const category = await Category.findById(this.category);
 
         if (!category) {
             return next(new Error('La categoría no existe'));

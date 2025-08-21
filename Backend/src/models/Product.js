@@ -85,12 +85,12 @@ const productSchema = new mongoose.Schema({
     cost: {
         type: Number,
         min: [0, 'El costo del producto no puede ser negativo'],
-            validate: {
-                validator: function(value){
-                    if (value === null || value === undefined) {
-                        return true;
-                        return Number.isFinite(value) && value >= 0;
+        validate: {
+            validator: function(value){
+                if (value === null || value === undefined) {
+                    return true;
                 }
+                return Number.isFinite(value) && value >= 0;
             },
             message: 'El costo del producto debe ser un número mayor o igual a cero',
         },
@@ -119,14 +119,14 @@ const productSchema = new mongoose.Schema({
         height: {
             type: Number,
             min: [0, 'La altura no puede ser negativa'],
-        },
-        tags: [{
-            type: String,
-            trim: true,
-            lowercase: true,
-            maxlength: [50, 'cada etiqueta no puede exceder los 50 caracteres'],
-        }]
+        }
     },
+    tags: [{
+        type: String,
+        trim: true,
+        lowercase: true,
+        maxlength: [50, 'cada etiqueta no puede exceder los 50 caracteres'],
+    }],
     images:[{
         url:{
             type: String,
@@ -179,8 +179,21 @@ const productSchema = new mongoose.Schema({
 });
 
 productSchema.pre('save', function(next) {
-    if (this.isModified('name')) {
-        this.slug = this.name.toLowerCase().replace(/[a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+    if (this.isModified('name') && !this.slug) {
+        this.slug = this.name
+            .toLowerCase()
+            .trim()
+            .replace(/[áàäâ]/g, 'a')
+            .replace(/[éèëê]/g, 'e')
+            .replace(/[íìïî]/g, 'i')
+            .replace(/[óòöô]/g, 'o')
+            .replace(/[úùüû]/g, 'u')
+            .replace(/[ñ]/g, 'n')
+            .replace(/[ç]/g, 'c')
+            .replace(/[^\w\s-]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-')
+            .replace(/^-|-$/g, '');
     }
     next();
 });
@@ -195,16 +208,20 @@ productSchema.pre('findOneAndUpdate', function(next) {
     next();
 });
 
-productSchema.pre('save', function(next) {
+productSchema.pre('save', async function(next) {
     if (this.isModified('category') || this.isModified('subcategory')) {
         const Subcategory = mongoose.model('Subcategory');
-        const subcategory = Subcategory.findById(this.subcategory);
+        const subcategory = await Subcategory.findById(this.subcategory);
 
         if (!subcategory) {
             return next(new Error('La subcategoría especificada no existe'));
         }
 
-        if (!subcategory.category.toString() !== this.category.toString()) {
+        if (!subcategory.category) {
+            return next(new Error('La subcategoría no tiene una categoría asignada'));
+        }
+
+        if (subcategory.category.toString() !== this.category.toString()) {
             return next(new Error('La subcategoría no pertenece a la categoría especificada'));
         }
     }
@@ -224,7 +241,7 @@ productSchema.virtual('isOutOfStock').get(function() {
 });
 
 productSchema.virtual('primaryImage').get(function() {
-    return this.dimensions.images.find(img => img.isPrimary) || this.dimensions.images[0];
+    return this.images.find(img => img.isPrimary) || this.images[0];
 });
 
 productSchema.statics.findActive = function() {

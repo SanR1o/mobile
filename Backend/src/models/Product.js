@@ -195,7 +195,7 @@ productSchema.pre('findOneAndUpdate', function(next) {
     next();
 });
 
-subcategorySchema.pre('save', function(next) {
+productSchema.pre('save', function(next) {
     if (this.isModified('category') || this.isModified('subcategory')) {
         const Subcategory = mongoose.model('Subcategory');
         const subcategory = Subcategory.findById(this.subcategory);

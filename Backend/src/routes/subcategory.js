@@ -29,11 +29,12 @@ router.get('/stats', verifyAdmin, getSubcategoriesWithStats);
 router.get('/', getSubcategories);
 router.get('/active', getActiveSubcategories);
 router.get('/category/:categoryId', validateObjectId('categoryId'), getSubcategoriesByCategory);
-router.get('/id', validateObjectId('id'), verifyAdminOrOwner, getSubcategoryById);
+router.get('/:id', validateObjectId('id'), getSubcategoryById);
 
-router.post('/', verifyAdmin, createSubcategory);
+router.post('/reorder', verifyAdminCoordinador, sortSubcategories);
+router.post('/', verifyAdminCoordinador, createSubcategory);
 router.put('/:id', validateObjectId('id'), verifyAdminCoordinador, updateSubcategory);
 router.delete('/:id', validateObjectId('id'), verifyAdmin, deleteSubcategory);
-router.patch('/:id/toogle-status', validateObjectId('id'), verifyAdminCoordinador, toggleSubcategoryStatus);
+router.patch('/:id/toggle-status', validateObjectId('id'), verifyAdminCoordinador, toggleSubcategoryStatus);
 
 module.exports = router;

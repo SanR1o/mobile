@@ -25,9 +25,9 @@ const getSubcategories = asyncHandler(async (req, res) => {
     }
     //consulta a la base de datos
     let query = Subcategory.find(filter)
-    .populate('createdBy', 'username firstname lastname')
+    .populate('createdBy', 'username firstName lastName')
     .populate('category', 'name')
-    .populate('productsCount').sort({ sortOrder: 1, name: 1 });
+    .sort({ sortOrder: 1, name: 1 });
     if (req.query.page) {
         query = query.skip(skip).limit(limit);
     }
@@ -78,9 +78,8 @@ const sortSubcategories = asyncHandler(async (req, res) => {
 const getActiveSubcategories = asyncHandler(async (req, res) => {
     const filter = { isActive: true };
     const subcategories = await Subcategory.find(filter)
-        .populate('createdBy', 'username firstname lastname')
-        .populate('category', 'name')
-        .populate('productsCount');
+        .populate('createdBy', 'username firstName lastName')
+        .populate('category', 'name');
     res.status(200).json({
         success: true,
         data: subcategories
@@ -90,10 +89,9 @@ const getActiveSubcategories = asyncHandler(async (req, res) => {
 //obtener subcategoria por id
 const getSubcategoryById = asyncHandler(async (req, res) => {
     const subcategory = await Subcategory.findById(req.params.id)
-        .populate('createdBy', 'username firstname lastname')
-        .populate('updatedBy', 'username firstname lastname')
-        .populate('category', 'name slug description')
-        .populate('productsCount');
+        .populate('createdBy', 'username firstName lastName')
+        .populate('updatedBy', 'username firstName lastName')
+        .populate('category', 'name slug description');
     if (!subcategory) {
         res.status(404).json({
             success: false,
@@ -194,10 +192,11 @@ const updateSubcategory = asyncHandler(async (req, res) => {
         return;
     }
 
-    //verificar que no exista una subcategoria con el mismo nombre en la misma categoria
+    //verificar que no exista una subcategoria con el mismo nombre en la misma categoria (excluyendo la actual)
     const subcategoryExists = await Subcategory.findOne({
         name,
-        category
+        category,
+        _id: { $ne: req.params.id }
     });
     if (subcategoryExists) {
         res.status(400).json({
@@ -235,24 +234,6 @@ const deleteSubcategory = asyncHandler(async (req, res) => {
         });
         return;
     }
-
-    await subcategory.remove();
-
-    res.status(200).json({
-        success: true,
-        message: 'Subcategoría eliminada correctamente'
-    });
-
-    //verificar si se puede eliminar
-    const canDelete = await subcategory.canDelete();
-    if (!canDelete) {
-        res.status(400).json({
-            success: false,
-            message: 'No se puede eliminar esta subcategoría porque tiene productos asociados'
-        });
-        return;
-    }
-
     //solo admin puede eliminar
     if (!req.user || req.user.role !== 'admin') {
         res.status(403).json({
@@ -261,6 +242,20 @@ const deleteSubcategory = asyncHandler(async (req, res) => {
         });
         return;
     }
+    //verificar si tiene productos asociados
+    const products = await Product.find({ subcategory: subcategory._id });
+    if (products.length > 0) {
+        res.status(400).json({
+            success: false,
+            message: 'No se puede eliminar esta subcategoría porque tiene productos asociados'
+        });
+        return;
+    }
+    await subcategory.deleteOne();
+    res.status(200).json({
+        success: true,
+        message: 'Subcategoría eliminada correctamente'
+    });
 });
 
 //activar/desactivar subcategoria
@@ -273,74 +268,62 @@ const toggleSubcategoryStatus = asyncHandler(async (req, res) => {
         });
         return;
     }
-
     subcategory.isActive = !subcategory.isActive;
+    subcategory.updatedBy = req.user._id;
     await subcategory.save();
 
+    // Si la subcategoría se desactiva, desactivar productos asociados
+    if (!subcategory.isActive) {
+        await Product.updateMany(
+            { subcategory: subcategory._id },
+            { isActive: false, updatedBy: req.user._id }
+        );
+    }
     res.status(200).json({
         success: true,
-        message: 'Estado de la subcategoría actualizado correctamente',
+        message: `Subcategoría ${subcategory.isActive ? 'activada' : 'desactivada'} exitosamente`,
         data: subcategory
     });
-
-    //si la subcategoria se desactiva, desactivar productos asociados
-    if (!subcategory.isActive) {
-    await Subcategory.updateMany(
-        { subcategory: subcategory._id },
-        { isActive: false, updatedBy: req.user._id }
-    );
-    }
 });
 
 const getSubcategoriesWithStats = asyncHandler(async (req, res) => {
-    const subcategoriesWithSubcounts = await Subcategory.aggregate([
-        {  
+    const subcategoriesWithStats = await Subcategory.aggregate([
+        {
             $lookup: {
                 from: 'products',
                 localField: '_id',
                 foreignField: 'subcategory',
-                count: 'categoriesCount',
-                
+                as: 'products'
             }
         },
         {
             $project: {
                 name: 1,
-                categoryName: { $ArrayElemAt: ['$categoryInfo.name', 0] },
-                subcategoriesCount: {$size: '$subcategories'},
-                productsCount: 1
+                description: 1,
+                productsCount: { $size: '$products' },
             }
         },
         { $sort: { productsCount: -1 } },
-        { $limit: 5}
+        { $limit: 5 }
     ]);
 
     res.status(200).json({
         success: true,
-        data: {
-            stats: stats[0] || {
-                totalCategories: 0,
-                totalSubcategories: 0,
-                totalProducts: 0
-            },
-            subcategories: subcategoriesWithSubcounts
-        }
+        data: subcategoriesWithStats
     });
 });
 
 const getSubcategoriesByCategory = asyncHandler(async (req, res) => {
     const categoryId = req.params.categoryId;
     const subcategories = await Subcategory.find({ category: categoryId })
-        .populate('createdBy', 'username firstname lastname')
-        .populate('category', 'name')
-        .populate('productsCount');
+        .populate('createdBy', 'username firstName lastName')
+        .populate('category', 'name');
 
     res.status(200).json({
         success: true,
         data: subcategories
     });
 });
-
 
 module.exports = {
     getSubcategories,

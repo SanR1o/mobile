@@ -1,6 +1,5 @@
-const { User } = require('../models/User');
+const User = require('../models/User');
 const { asyncHandler } = require('../middleware/errorHandler');
-const user = require('../models/User');
 
 //obtener los usuarios
 const getUsers = asyncHandler(async (req, res) => {
@@ -13,7 +12,11 @@ const getUsers = asyncHandler(async (req, res) => {
     //ROL
     if (req.query.role) filter.role = req.query.role;
     //activo
-    if (req.query.isActive !== undefined) filter.active = req.query.isActive === true;
+    if (req.query.isActive !== undefined) {
+        // acepta string 'true'/'false' o booleano
+        if (req.query.isActive === 'true' || req.query.isActive === true) filter.isActive = true;
+        else if (req.query.isActive === 'false' || req.query.isActive === false) filter.isActive = false;
+    }
     //multiples filtros
     if(req.query.search){
         filter.$or =[
@@ -92,7 +95,7 @@ const createUser = asyncHandler(async (req, res) => {
     }
 
     //crear el usuario
-    const User = await User.create({
+    const newUser = await User.create({
         username,
         email,
         password,
@@ -105,7 +108,7 @@ const createUser = asyncHandler(async (req, res) => {
     });
     res.status(201).json({
         success: true,
-        data: User
+        data: newUser
     });
 });
 
@@ -130,27 +133,9 @@ const updateUser = asyncHandler(async (req, res) => {
         isActive 
     } = req.body;
 
-    //si no es admin o el mismo usuario no puede actualizar
-    if (req.user.role !== 'admin') {
-        if (req.user._id.toString() !== req.params.id) {
-            return res.status(403).json({
-                success: false,
-                message: 'Solo puedes actualizar tu propio perfil'
-            });
-        }
-
-            //solo los admin pueden cambiar el rol y estado
-        if (role !== undefined || isActive !== undefined) {
-            return res.status(403).jaon({
-                success: false,
-                message: 'No tienes permiso para cambiar el rol o estado'
-            });
-        }
-    }
-
     //verificar duplicados
     if (username && username !== user.username) {
-        const existingUsername = await user.findOne({ username });
+        const existingUsername = await User.findOne({ username });
         if (existingUsername) {
             return res.status(400).json({
                 success: false,
@@ -160,7 +145,7 @@ const updateUser = asyncHandler(async (req, res) => {
     }
 
     if (email && email !== user.email) {
-        const existingEmail = await user.findOne({ email });
+        const existingEmail = await User.findOne({ email });
         if (existingEmail) {
             return res.status(400).json({
                 success: false,
@@ -175,11 +160,8 @@ const updateUser = asyncHandler(async (req, res) => {
     if (firstName) user.firstName = firstName;
     if (lastName) user.lastName = lastName;
     if (phone) user.phone = phone;
-    // solo los admin pueden cambiar el rol
-    if (req.user.role === 'admin') {
-        if (role) user.role = role;
-        if (isActive !== undefined) user.isActive = isActive;
-    }
+    if (role) user.role = role;
+    if (isActive !== undefined) user.isActive = isActive;
     user.updatedBy = req.user._id;
     await user.save();
     res.status(200).json({
@@ -198,7 +180,7 @@ const deleteUser = asyncHandler(async (req, res) => {
         });
     }
 
-    //no permitir que el admin se elimine a si mismo
+    //no permitir que el admin se elimine a sí mismo
     if (user._id.toString() === req.user._id.toString()){
         return res.status(400).json({
             success: false,
@@ -206,7 +188,7 @@ const deleteUser = asyncHandler(async (req, res) => {
         });
     }
 
-    await user.findByIdAndDelete(req.params.id);
+    await User.findByIdAndDelete(req.params.id);
     res.status(200).json({
         success: true,
         message: 'Usuario eliminado correctamente'
@@ -215,7 +197,7 @@ const deleteUser = asyncHandler(async (req, res) => {
 
 // Activar o desactivar un usuario
 const toggleUserStatus = asyncHandler(async (req, res) => {
-    const user = await user.findById(req.params.id);
+    const user = await User.findById(req.params.id);
     if (!user) {
         return res.status(404).json({
             success: false,
@@ -223,7 +205,7 @@ const toggleUserStatus = asyncHandler(async (req, res) => {
         });
     }
 
-    // no permitir que el admin se desactive a si mismo
+    // no permitir que el admin se desactive a sí mismo
     if (user._id.toString() === req.user._id.toString()) {
         return res.status(400).json({
             success: false,

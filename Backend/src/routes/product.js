@@ -36,12 +36,13 @@ router.get('/featured', getFeaturedProducts);
 router.get('/stats', verifyAdmin, getProductStats);
 router.get('/category/:categoryId', validateObjectId('categoryId'), getProductsByCategory);
 router.get('/subcategory/:subcategoryId', validateObjectId('subcategoryId'), getProductsBySubcategory);
-router.get('/:id', validateObjectId('id'), verifyAdminCoordinador, getProductById);
+router.get('/:id', validateObjectId('id'), getProductById);
 
+router.post('/reorder', verifyAdminCoordinador, sortProducts);
 router.post('/', verifyAdminCoordinador, createProduct);
 router.put('/:id', validateObjectId('id'), verifyAdminCoordinador, updateProduct);
 router.delete('/:id', validateObjectId('id'), verifyAdmin, deleteProduct);
-router.patch('/:id/toogle-status', validateObjectId('id'), verifyAdminCoordinador, toggleProductStatus);
+router.patch('/:id/toggle-status', validateObjectId('id'), verifyAdminCoordinador, toggleProductStatus);
 router.patch('/:id/stock', validateObjectId('id'), verifyAdminCoordinador, updateProductStock);
 
 module.exports = router;

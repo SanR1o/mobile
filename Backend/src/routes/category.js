@@ -24,14 +24,15 @@ const { validateObjectId } = require('../middleware/errorHandler');
 router.use(verifyToken);
 
 //Rutas
-router.get('/stats', verifyAdminCoordinador, getCategoriesWithStats);
+router.get('/stats', verifyAdmin, getCategoriesWithStats);
 router.get('/', getCategories);
 router.get('/active', getActiveCategories);
-router.get('/id', validateObjectId('id'), verifyAdminCoordinador, getCategoryById);
+router.get('/:id', validateObjectId('id'), getCategoryById);
 
+router.post('/reorder', verifyAdminCoordinador, sortCategories);
 router.post('/', verifyAdminCoordinador, createCategory);
 router.put('/:id', validateObjectId('id'), verifyAdminCoordinador, updateCategory);
 router.delete('/:id', validateObjectId('id'), verifyAdmin, deleteCategory);
-router.patch('/:id/toogle-status', validateObjectId('id'), verifyAdminCoordinador, toggleCategoryStatus);
+router.patch('/:id/toggle-status', validateObjectId('id'), verifyAdminCoordinador, toggleCategoryStatus);
 
 module.exports = router;

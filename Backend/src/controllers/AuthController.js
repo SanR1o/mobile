@@ -1,5 +1,5 @@
 const bcrypt = require('bcryptjs');
-const { User } = require('../models/User');
+const User = require('../models/User');
 const { asyncHandler } = require('../middleware/errorHandler');
 const { generateToken } = require('../utils/jwt');
 
@@ -22,7 +22,6 @@ const login = asyncHandler(async (req, res) => {
     }
 
     //Busqueda de usuario en la base de datos
-    try {
     console.log('Buscando usuario en la base de datos con:', loginField.toLowerCase());
     const user = await User.findOne({ 
         $or: [
@@ -51,7 +50,12 @@ const login = asyncHandler(async (req, res) => {
 
     //verificacion de la contraseña
     console.log('Verificando contraseña...');
-    const isPasswordValid = await user.comparePassword(password);
+    let isPasswordValid = false;
+    if (typeof user.comparePassword === 'function') {
+        isPasswordValid = await user.comparePassword(password);
+    } else {
+        isPasswordValid = await bcrypt.compare(password, user.password);
+    }
     console.log('Contraseña válida:', isPasswordValid);
     if (!isPasswordValid) {
         console.log('ERROR DE AUTENTICACIÓN - Contraseña inválida');
@@ -60,7 +64,7 @@ const login = asyncHandler(async (req, res) => {
             message: 'Credenciales inválidas'
         });
     }
-    user.lastlogin = new Date();
+    user.lastLogin = new Date();
     await user.save();
     // Preparar respuesta de usuario sin datos sensibles
     const userResponse = {
@@ -69,7 +73,7 @@ const login = asyncHandler(async (req, res) => {
         email: user.email,
         role: user.role,
         isActive: user.isActive,
-        lastlogin: user.lastlogin
+        lastLogin: user.lastLogin
         // Agrega otros campos necesarios, pero nunca password
     };
     //Generar token JWT
@@ -85,14 +89,6 @@ const login = asyncHandler(async (req, res) => {
             expiresIn: process.env.JWT_EXPIRES_IN || '1h'
         }
     });
-
-    } catch (error) {
-        console.log('ERROR DEL SERVIDOR - LOGIN: ', error);
-        return res.status(500).json({
-            success: false,
-            message: 'Error del servidor'
-        });
-    }
 });
 
 //obtener info del usuario autenticado
@@ -111,7 +107,7 @@ const getMe = asyncHandler(async (req, res) => {
         email: user.email,
         role: user.role,
         isActive: user.isActive,
-        lastlogin: user.lastlogin
+        lastLogin: user.lastLogin
     };
     res.status(200).json({
         success: true,
@@ -138,8 +134,18 @@ const changePassword = asyncHandler(async (req, res) => {
 
     //obtener usuario con contraseña actual
     const user = await User.findById(req.user._id).select('+password');
-
-    const isCurrentPasswordValid = await user.comparePassword(currentPassword);
+    if (!user) {
+        return res.status(404).json({
+            success: false,
+            message: 'Usuario no encontrado'
+        });
+    }
+    let isCurrentPasswordValid = false;
+    if (typeof user.comparePassword === 'function') {
+        isCurrentPasswordValid = await user.comparePassword(currentPassword);
+    } else {
+        isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.password);
+    }
     if (!isCurrentPasswordValid) {
         return res.status(401).json({
             success: false,

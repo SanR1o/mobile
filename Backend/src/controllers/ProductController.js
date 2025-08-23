@@ -12,23 +12,14 @@ const getProducts = asyncHandler(async (req, res) => {
     if (req.query.isActive !== undefined) {
         filter.isActive = req.query.isActive === 'true';
     }
-    //nombre o descripcion
-    if (req.query.search) {
-        filter.$or = [
-            { name: { $regex: req.query.search, $options: 'i' } },
-            { description: { $regex: req.query.search, $options: 'i' } }
-        ];
-    }
     //filtrar por categoria
     if (req.query.categoryId) {
         filter.category = req.query.categoryId;
     }
-
     //filtrar por subcategoria
     if (req.query.subcategoryId) {
         filter.subcategory = req.query.subcategoryId;
     }
-
     //filtro por rangos de precio
     if (req.query.minPrice || req.query.maxPrice) {
         filter.price = {};
@@ -39,7 +30,6 @@ const getProducts = asyncHandler(async (req, res) => {
             filter.price.$lte = parseFloat(req.query.maxPrice);
         }
     }
-
     //filtro de stock bajo
     if (req.query.lowStock) {
         filter.$expr = {
@@ -49,8 +39,7 @@ const getProducts = asyncHandler(async (req, res) => {
             ]
         }
     }
-
-    //nombre o descripcion
+    //nombre, descripcion, sku o tags
     if (req.query.search) {
         filter.$or = [
             { name: { $regex: req.query.search, $options: 'i' } },
@@ -64,7 +53,7 @@ const getProducts = asyncHandler(async (req, res) => {
     let query = Product.find(filter)
     .populate('category', 'name')
     .populate('subcategory', 'name')
-    .populate('createdBy', 'username firstname lastname');
+    .populate('createdBy', 'username firstName lastName');
     if (req.query.page) {
         query = query.skip(skip).limit(limit);
     }
@@ -97,7 +86,7 @@ const sortProducts = asyncHandler(async (req, res) => {
         return;
     }
 
-    // Actualizar el orden de las subcategorías
+    // Actualizar el orden de los productos
     const bulkOps = sortOrder.map((id, index) => ({
         updateOne: {
             filter: { _id: id },
@@ -105,7 +94,7 @@ const sortProducts = asyncHandler(async (req, res) => {
         }
     }));
 
-    await Subcategory.bulkWrite(bulkOps);
+    await Product.bulkWrite(bulkOps);
 
     res.status(200).json({
         success: true,
@@ -116,10 +105,9 @@ const sortProducts = asyncHandler(async (req, res) => {
 const getActiveProducts = asyncHandler(async (req, res) => {
     const filter = { isActive: true };
     const products = await Product.find(filter)
-        .populate('createdBy', 'username firstname lastname')
+        .populate('createdBy', 'username firstName lastName')
         .populate('category', 'name')
         .populate('subcategory', 'name')
-        .populate('productsCount')
         .sort({ sortOrder: 1, name: 1 });
     res.status(200).json({
         success: true,
@@ -138,10 +126,9 @@ const getProductsByCategory = asyncHandler(async (req, res) => {
         });
         return;
     }
-    const products = await Product.findByCategory(categoryId)
-        .populate('createdBy', 'username firstname lastname')
+    const products = await Product.find({ category: categoryId })
+        .populate('createdBy', 'username firstName lastName')
         .populate('category', 'name')
-        .populate('productsCount')
         .sort({ sortOrder: 1, name: 1 });
 
     res.status(200).json({
@@ -163,11 +150,10 @@ const getProductsBySubcategory = asyncHandler(async (req, res) => {
         return;
     }
 
-    const products = await Product.findBySubcategory(subcategoryId)
-        .populate('createdBy', 'username firstname lastname')
+    const products = await Product.find({ subcategory: subcategoryId })
+        .populate('createdBy', 'username firstName lastName')
         .populate('category', 'name')
         .populate('subcategory', 'name')
-        .populate('productsCount')
         .sort({ sortOrder: 1, name: 1 });
 
     res.status(200).json({
@@ -177,7 +163,7 @@ const getProductsBySubcategory = asyncHandler(async (req, res) => {
 });
 
 const getFeaturedProducts = asyncHandler(async (req, res) => {
-    const products = await Product.findFeatured();
+    const products = await Product.find({ isFeatured: true });
     res.status(200).json({
         success: true,
         data: products
@@ -190,8 +176,8 @@ const getProductById = asyncHandler(async (req, res) => {
     const product = await Product.findById(req.params.id)
         .populate('category', 'name slug description')
         .populate('subcategory', 'name slug description')
-        .populate('createdBy', 'username firstname lastname')
-        .populate('updatedBy', 'username firstname lastname')
+        .populate('createdBy', 'username firstName lastName')
+        .populate('updatedBy', 'username firstName lastName')
     if (!product) {
         res.status(404).json({
             success: false,
@@ -210,8 +196,8 @@ const getProductBySku = asyncHandler(async (req, res) => {
     const product = await Product.findOne({ sku: req.params.sku.toUpperCase() })
         .populate('category', 'name slug description')
         .populate('subcategory', 'name slug description')
-        .populate('createdBy', 'username firstname lastname')
-        .populate('updatedBy', 'username firstname lastname');
+        .populate('createdBy', 'username firstName lastName')
+        .populate('updatedBy', 'username firstName lastName');
 
     if (!product) {
         res.status(404).json({
@@ -318,7 +304,10 @@ const createProduct = asyncHandler(async (req, res) => {
         createdBy: req.user._id
     });
 
-    await product.populate('category', 'name slug').populate('subcategory', 'name slug');
+    await product.populate([
+        { path: 'category', select: 'name slug' },
+        { path: 'subcategory', select: 'name slug' }
+    ]);
 
     res.status(201).json({
         success: true,
@@ -381,7 +370,7 @@ const updateProduct = asyncHandler(async (req, res) => {
     }
 
     //verificar que la subcategoria exista y este activa
-    const subcategoryExists = await Subcategory.findById(req.params.id);
+    const subcategoryExists = await Subcategory.findById(subcategory);
     if (!subcategoryExists || !subcategoryExists.isActive) {
         res.status(404).json({
             success: false,
@@ -390,9 +379,10 @@ const updateProduct = asyncHandler(async (req, res) => {
         return;
     }
 
-    //verificar que no exista un producto con el mismo nombre 
+    //verificar que no exista un producto con el mismo nombre (excluyendo el actual)
     const productExists = await Product.findOne({
         name,
+        _id: { $ne: req.params.id }
     });
     if (productExists) {
         res.status(400).json({
@@ -444,6 +434,7 @@ const updateProduct = asyncHandler(async (req, res) => {
 
 //eliminar producto
 const deleteProduct = asyncHandler(async (req, res) => {
+    // Restricción de permisos manejada por el middleware en la ruta
     const product = await Product.findByIdAndDelete(req.params.id);
     if (!product) {
         res.status(404).json({
@@ -452,18 +443,6 @@ const deleteProduct = asyncHandler(async (req, res) => {
         });
         return;
     }
-
-    //solo admin puede eliminar productos
-    if (!req.user || req.user.role !== 'admin') {
-        res.status(403).json({ 
-            success: false,
-            message: 'No tienes permiso para eliminar este producto'
-        });
-        return;
-    }
-
-    await product.remove();
-
     res.status(200).json({
         success: true,
         message: 'Producto eliminado correctamente'
@@ -492,7 +471,7 @@ const toggleProductStatus = asyncHandler(async (req, res) => {
 });
 
 const getProductStats = asyncHandler(async (req, res) => {
-    const stats = await Subcategory.aggregate([
+    const stats = await Product.aggregate([
         {  
             $group: {
                 _id: null,
@@ -536,9 +515,9 @@ const getProductStats = asyncHandler(async (req, res) => {
 });
 
 const updateProductStock = asyncHandler(async (req, res) => {
-    const { productId, quantity } = req.body;
-
-    const product = await Product.findById(productId);
+    // Usar el id de la URL y el nuevo stock del body
+    const { stock } = req.body;
+    const product = await Product.findById(req.params.id);
     if (!product) {
         res.status(404).json({
             success: false,
@@ -547,30 +526,34 @@ const updateProductStock = asyncHandler(async (req, res) => {
         return;
     }
 
-    if (!product.stock.trackStock) {
+    if (!product.stock) product.stock = {};
+    if (typeof stock === 'number') {
+        product.stock.quantity = stock;
+    } else if (typeof stock === 'object' && stock.quantity !== undefined) {
+        product.stock.quantity = stock.quantity;
+        if (stock.minStock !== undefined) product.stock.minStock = stock.minStock;
+        if (stock.trackStock !== undefined) product.stock.trackStock = stock.trackStock;
+    } else {
         return res.status(400).json({
             success: false,
-            message: 'El producto no está configurado para rastrear el stock'
+            message: 'El campo stock es obligatorio y debe ser un número o un objeto con quantity.'
         });
     }
 
-    //operaciones set add substract
-    switch (operation) {
-        case 'set':
-            product.stock.quantity = quantity;
-            break;
-        case 'add':
-            product.stock.quantity += quantity;
-            break;
-        case 'subtract':
-            product.stock.quantity -= quantity;
-            break;
-        default:
-            return res.status(400).json({
-                success: false,
-                message: 'Operación no válida'
-            });
-    }
+    if (product.stock.quantity < 0) product.stock.quantity = 0;
+    await product.save();
+
+    res.status(200).json({
+        success: true,
+        message: 'Stock del producto actualizado correctamente',
+        data: {
+            sku: product.sku,
+            name: product.name,
+            newStock: product.stock.quantity,
+            isLowStock: product.isLowStock,
+            isOutOfStock: product.isOutOfStock
+        }
+    });
 
     product.updatedBy = req.user._id;
     if (product.stock.quantity < 0) {

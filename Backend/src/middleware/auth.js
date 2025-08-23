@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { User } = require('../models/User');
+const User = require('../models/User');
 
 const verifyToken = async (req, res, next) => {
     try {
@@ -22,15 +22,19 @@ const verifyToken = async (req, res, next) => {
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         
-        const user = await User.findById(decoded.userId).select('password');
-
-        if (!user.isActive) {
+        const user = await User.findById(decoded.userId);
+        if (!user) {
             return res.status(401).json({ 
                 success: false,
                 message: 'Usuario no encontrado' 
             });
         }
-
+        if (!user.isActive) {
+            return res.status(401).json({ 
+                success: false,
+                message: 'Usuario inactivo' 
+            });
+        }
         req.user = user;
         next();
     } catch (error) {
@@ -57,7 +61,7 @@ const verifyToken = async (req, res, next) => {
     }
 };
 
-const verifyRole = (...alowedRoles) => {
+const verifyRole = (...allowedRoles) => {
     return (req, res, next) => {
         try{
             if (!req.user) {
@@ -67,7 +71,7 @@ const verifyRole = (...alowedRoles) => {
                 });
             }
 
-            if (!alowedRoles.includes(req.user.role)) {
+            if (!allowedRoles.includes(req.user.role)) {
                 return res.status(403).json({ 
                     success: false,
                     message: 'Acceso denegado: Rol no autorizado' 
@@ -91,18 +95,16 @@ const verifyAdminCoordinador = (req, res, next) => {
 };
 
 const verifyAdminOrOwner = (req, res, next) => {
-   try {
+    try {
         if (!req.user) {
             return res.status(403).json({ 
                 success: false,
                 message: 'Acceso denegado, usuario no autenticado' 
             });
         }
-
-        if (req.user.role !== 'admin') {
+        if (req.user.role === 'admin') {
             return next();
         }
-
         const targetUserId = req.params.id || req.body.userId;
         if (!targetUserId || targetUserId !== req.user._id.toString()) {
             return res.status(403).json({ 
@@ -110,9 +112,7 @@ const verifyAdminOrOwner = (req, res, next) => {
                 message: 'Acceso denegado: Solo el administrador o el propietario pueden realizar esta acción' 
             });
         }
-
         next();
-
     } catch (error) {
         console.error('Error al verificar el rol:', error);
         return res.status(500).json({

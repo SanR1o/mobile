@@ -54,8 +54,7 @@ const errorHandler = (err, req, res, next) => {
 //Middlewares para rutas no encontradas
 const noFound = (req, res, next) => {
     const error = new Error(`Ruta no encontrada - ${req.originalUrl}`);
-    res.status(404);
-    next(error)
+    next(error);
 };
 
 //middleware para validar objectId

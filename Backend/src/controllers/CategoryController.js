@@ -1,4 +1,4 @@
-const { Cateogory, Subcategory, Product } = require('../models');
+const { Category, Subcategory, Product } = require('../models');
 const { asyncHandler } = require('../middleware/errorHandler');
 
 //obtener todas las categorias
@@ -22,9 +22,8 @@ const getCategories = asyncHandler(async (req, res) => {
 
     //consulta a la base de datos
     let query = Category.find(filter)
-    .populate('createdBy', 'username', 'firstname', 'lastname')
-    .populate('subcategoriesCount')
-    .populate('productsCount').sort({ sortOrder: 1, name: 1 });
+    .populate('createdBy', 'username firstName lastName')
+    .sort({ sortOrder: 1, name: 1 });
 
     if (req.query.page) {
         query = query.skip(skip).limit(limit);
@@ -40,7 +39,7 @@ const getCategories = asyncHandler(async (req, res) => {
         pagination: req.query.page ? {
             page,
             limit,
-            total,
+            total: totalCount,
             pages: Math.ceil(totalCount / limit),
         } : undefined
     });
@@ -69,15 +68,16 @@ const sortCategories = asyncHandler(async (req, res) => {
 
     res.status(200).json({
         success: true,
-        data: categories
+        message: 'Categorías ordenadas correctamente'
     });
 });
 
 //obtener categoria por id
 const getCategoryById = asyncHandler(async (req, res) => {
+
     const category = await Category.findById(req.params.id)
-        .populate('createdBy', 'username firstname lastname')
-        .populate('updatedBy', 'username firstname lastname');
+        .populate('createdBy', 'username firstName lastName')
+        .populate('updatedBy', 'username firstName lastName');
 
         if (!category) {
             res.status(404).json({
@@ -100,13 +100,12 @@ const getCategoryById = asyncHandler(async (req, res) => {
 
 const getActiveCategories = asyncHandler(async (req, res) => {
     const filter = { isActive: true };
-    const category = await Product.find(filter)
-        .populate('createdBy', 'username firstname lastname')
-        .populate('category', 'name')
+    const categories = await Category.find(filter)
+        .populate('createdBy', 'username firstName lastName')
         .sort({ sortOrder: 1, name: 1 });
     res.status(200).json({
         success: true,
-        data: category
+        data: categories
     });
 });
 
@@ -120,14 +119,18 @@ const createCategory = asyncHandler(async (req, res) => {
         sortOrder,
         color,
         createdBy,
+        slug
     } = req.body;
 
-    if (!name) {
-        res.status(400).json({
+    if (!name || !slug) {
+        const errors = [];
+        if (!name) errors.push('El nombre de la categoría es obligatorio');
+        if (!slug) errors.push('El slug de la categoría es obligatorio');
+        return res.status(400).json({
             success: false,
-            message: 'Nombre y descripción son requeridos'
+            message: 'Error de validación',
+            errors
         });
-        return;
     }
 
     const existingCategory = await Category.findOne({
@@ -140,12 +143,23 @@ const createCategory = asyncHandler(async (req, res) => {
         });
     }
 
+    // Validar slug duplicado
+    const existingSlug = await Category.findOne({ slug });
+    if (existingSlug) {
+        return res.status(400).json({
+            success: false,
+            message: 'Ya existe una categoría con este slug',
+            errors: ['El slug de la categoría ya está en uso']
+        });
+    }
+
     //crear la categoria
     const category = await Category.create({
         name,
         description,
         icon,
         color,
+        slug,
         isActive: isActive !== undefined ? isActive : true,
         sortOrder : sortOrder || 0,
         createdBy: req.user._id,
@@ -217,14 +231,14 @@ const deleteCategory = asyncHandler(async (req, res) => {
         });
         return;
     }
-
-    await category.remove();
-
-    res.status(200).json({
-        success: true,
-        message: 'Categoría eliminada correctamente'
-    });
-
+    //solo admin puede eliminar
+    if (!req.user || req.user.role !== 'admin') {
+        res.status(403).json({
+            success: false,
+            message: 'No tienes permiso para eliminar esta categoría'
+        });
+        return;
+    }
     //verificar que no tenga subcategorias
     const subcategories = await Subcategory.find({ category: category._id });
     if (subcategories.length > 0) {
@@ -234,7 +248,6 @@ const deleteCategory = asyncHandler(async (req, res) => {
         });
         return;
     }
-
     //verificar que no tenga productos asociados
     const products = await Product.find({ category: category._id });
     if (products.length > 0) {
@@ -244,15 +257,11 @@ const deleteCategory = asyncHandler(async (req, res) => {
         });
         return;
     }
-
-    //solo admin puede eliminar
-    if (!req.user || req.user.role !== 'admin') {
-        res.status(403).json({
-            success: false,
-            message: 'No tienes permiso para eliminar esta categoría'
-        });
-        return;
-    }
+    await category.deleteOne();
+    res.status(200).json({
+        success: true,
+        message: 'Categoría eliminada correctamente'
+    });
 });
 
 //activar o desactivar una categoria
@@ -265,24 +274,14 @@ const toggleCategoryStatus = asyncHandler(async (req, res) => {
         });
         return;
     }
-
     category.isActive = !category.isActive;
+    category.updatedBy = req.user._id;
     await category.save();
-
     res.status(200).json({
         success: true,
-        message: 'Estado de la categoría actualizado correctamente',
+        message: `Categoría ${category.isActive ? 'activada' : 'desactivada'} exitosamente`,
         data: category
     });
-
-    //solo admin puede cambiar estado
-    if (!req.user || req.user.role !== 'admin') {
-        res.status(403).json({
-            success: false,
-            message: 'No tienes permiso para cambiar el estado de esta categoría'
-        });
-        return;
-    }
 });
 
 const getCategoriesWithStats = asyncHandler(async (req, res) => {
@@ -292,31 +291,23 @@ const getCategoriesWithStats = asyncHandler(async (req, res) => {
                 from: 'subcategories',
                 localField: '_id',
                 foreignField: 'category',
-                count: 'subcategoriesCount'
+                as: 'subcategories'
             }
         },
         {
             $project: {
                 name: 1,
-                categoryName: { $ArrayElemAt: ['$categoryInfo.name', 0] },
-                subcategoriesCount: {$size: '$subcategories'},
-                productsCount: 1
+                description: 1,
+                subcategoriesCount: { $size: '$subcategories' },
             }
         },
-        { $sort: { productsCount: -1 } },
-        { $limit: 5}
+        { $sort: { subcategoriesCount: -1 } },
+        { $limit: 5 }
     ]);
 
     res.status(200).json({
         success: true,
-        data: {
-            stats: stats[0] || {
-                totalCategories: 0,
-                totalSubcategories: 0,
-                totalProducts: 0
-            },
-            subcategories: categoriesWithSubcounts
-        }
+        data: categoriesWithSubcounts
     });
 });
 

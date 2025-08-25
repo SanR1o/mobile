@@ -1,0 +1,30 @@
+{
+	"id": "a0f962a7-165f-45b5-825f-8b52fb683a8b",
+	"name": "Movil",
+	"values": [
+		{
+			"key": "movilRoute",
+			"value": "http://localhost:5000/api/",
+			"type": "default",
+			"description": "",
+			"enabled": true
+		},
+		{
+			"key": "adminToken",
+			"value": "",
+			"type": "default",
+			"description": "",
+			"enabled": true
+		},
+		{
+			"key": "coordToken",
+			"value": "",
+			"type": "default",
+			"description": "",
+			"enabled": true
+		}
+	],
+	"_postman_variable_scope": "environment",
+	"_postman_exported_at": "2025-08-25T19:00:18.583Z",
+	"_postman_exported_using": "Postman/11.59.4"
+}

@@ -1,0 +1,2971 @@
+{
+	"info": {
+		"_postman_id": "d74534fb-04de-487e-90ab-3e1f560532aa",
+		"name": "Gestion de inventarios",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "45102735",
+		"_collection_link": "https://sanrio-6864615.postman.co/workspace/sanrio's-Workspace~3661702b-f9ee-46a3-828a-8dc1055355d9/collection/45102735-d74534fb-04de-487e-90ab-3e1f560532aa?action=share&source=collection_link&creator=45102735"
+	},
+	"item": [
+		{
+			"name": "ADMIN",
+			"item": [
+				{
+					"name": "Usuarios",
+					"item": [
+						{
+							"name": "Login",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"email\": \"admin@ejemplo.com\",\r\n  \"password\": \"admin123\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{movilRoute}}auth/login",
+									"host": [
+										"{{movilRoute}}auth"
+									],
+									"path": [
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Logout",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{movilRoute}}auth/logout",
+									"host": [
+										"{{movilRoute}}auth"
+									],
+									"path": [
+										"logout"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Crear usuario",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"username\": \"coordinador2\",\r\n  \"email\": \"nuevo@ejemplo.com\",\r\n  \"password\": \"clave123\",\r\n  \"firstName\": \"Nuevo\",\r\n  \"lastName\": \"Usuario\",\r\n  \"role\": \"coordinador\",\r\n  \"phone\": \"3001234569\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{movilRoute}}users",
+									"host": [
+										"{{movilRoute}}users"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Verificar token",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{movilRoute}}auth/verify",
+									"host": [
+										"{{movilRoute}}auth"
+									],
+									"path": [
+										"verify"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener todos los usuarios",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}users",
+									"host": [
+										"{{movilRoute}}users"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener usuario por id",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}users/68a923309af14df02b26b983",
+									"host": [
+										"{{movilRoute}}users"
+									],
+									"path": [
+										"68a923309af14df02b26b983"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener usuario autenticado",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{movilRoute}}auth/me",
+									"host": [
+										"{{movilRoute}}auth"
+									],
+									"path": [
+										"me"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener estadisticas de usuarios",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}users/stats",
+									"host": [
+										"{{movilRoute}}users"
+									],
+									"path": [
+										"stats"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Cambiar contraseña",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"currentPassword\": \"admin123\",\r\n  \"newPassword\": \"admin456\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{movilRoute}}auth/change-password",
+									"host": [
+										"{{movilRoute}}auth"
+									],
+									"path": [
+										"change-password"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Actualizar usuario",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"firstName\": \"Nombrenuevo\",\r\n  \"lastName\": \"Apellidonuevo\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{movilRoute}}users/68a92d4b9057f11997c77585",
+									"host": [
+										"{{movilRoute}}users"
+									],
+									"path": [
+										"68a92d4b9057f11997c77585"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Activar/desactivar usuario",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PATCH",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}users/68a92e4f9057f11997c77596/toggle-status",
+									"host": [
+										"{{movilRoute}}users"
+									],
+									"path": [
+										"68a92e4f9057f11997c77596",
+										"toggle-status"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Eliminar usuario",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}users/68a92d4b9057f11997c77585",
+									"host": [
+										"{{movilRoute}}users"
+									],
+									"path": [
+										"68a92d4b9057f11997c77585"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Categorias",
+					"item": [
+						{
+							"name": "Crear categoria",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"Nueva Categoría\",\r\n  \"description\": \"Descripción de la categoría\",\r\n  \"icon\": \"📦\",\r\n  \"color\": \"#FF0000\",\r\n  \"slug\": \"nueva-categoria\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{movilRoute}}categories",
+									"host": [
+										"{{movilRoute}}categories"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Ordenar categorias",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"sortOrder\": [\r\n    \"68a923309af14df02b26b989\",\r\n    \"68a923309af14df02b26b988\"\r\n  ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{movilRoute}}categories/reorder",
+									"host": [
+										"{{movilRoute}}categories"
+									],
+									"path": [
+										"reorder"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener todas las categorias",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}categories",
+									"host": [
+										"{{movilRoute}}categories"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Estadisticas de categorias",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}categories/stats",
+									"host": [
+										"{{movilRoute}}categories"
+									],
+									"path": [
+										"stats"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener categoria por id",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}categories/68a923309af14df02b26b989",
+									"host": [
+										"{{movilRoute}}categories"
+									],
+									"path": [
+										"68a923309af14df02b26b989"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener categorias activas",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}categories/active",
+									"host": [
+										"{{movilRoute}}categories"
+									],
+									"path": [
+										"active"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Actualizar categoria",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"Categoría Actualizada\",\r\n  \"description\": \"Nueva descripción\",\r\n  \"icon\": \"🆕\",\r\n  \"color\": \"#00FF00\",\r\n  \"slug\": \"categoria-actualizada\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{movilRoute}}categories/68a930d4f16d0f3abc6aae7e",
+									"host": [
+										"{{movilRoute}}categories"
+									],
+									"path": [
+										"68a930d4f16d0f3abc6aae7e"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Activar/desactivar categoria",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PATCH",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}categories/68a930d4f16d0f3abc6aae7e/toggle-status",
+									"host": [
+										"{{movilRoute}}categories"
+									],
+									"path": [
+										"68a930d4f16d0f3abc6aae7e",
+										"toggle-status"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Eliminar categoria",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}categories/68a930d4f16d0f3abc6aae7e",
+									"host": [
+										"{{movilRoute}}categories"
+									],
+									"path": [
+										"68a930d4f16d0f3abc6aae7e"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Subcategorias",
+					"item": [
+						{
+							"name": "Crear subcategoria",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"Nueva Subcategoría\",\r\n  \"description\": \"Descripción de la subcategoría\",\r\n  \"icon\": \"📁\",\r\n  \"color\": \"#00FF00\",\r\n  \"slug\": \"nueva-subcategoria\",\r\n  \"category\": \"68a923309af14df02b26b987\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{movilRoute}}subcategories",
+									"host": [
+										"{{movilRoute}}subcategories"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Ordenar subcategorias",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"sortOrder\": [\r\n    \"68a923309af14df02b26b98f\",\r\n    \"68a923309af14df02b26b991\"\r\n  ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{movilRoute}}subcategories/reorder",
+									"host": [
+										"{{movilRoute}}subcategories"
+									],
+									"path": [
+										"reorder"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener todas las subcategorias",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}subcategories",
+									"host": [
+										"{{movilRoute}}subcategories"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Estadisticas de categorias",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}subcategories/stats",
+									"host": [
+										"{{movilRoute}}subcategories"
+									],
+									"path": [
+										"stats"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener subcategoria id",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}subcategories/68a923309af14df02b26b990",
+									"host": [
+										"{{movilRoute}}subcategories"
+									],
+									"path": [
+										"68a923309af14df02b26b990"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener todas las subcategorias activas",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}subcategories/active",
+									"host": [
+										"{{movilRoute}}subcategories"
+									],
+									"path": [
+										"active"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener todas las subcategorias por categoria",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}subcategories/category/68a923309af14df02b26b987",
+									"host": [
+										"{{movilRoute}}subcategories"
+									],
+									"path": [
+										"category",
+										"68a923309af14df02b26b987"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Actualizar subcategoria",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"Subcategoría Actualizada\",\r\n  \"category\": \"68a923309af14df02b26b987\",\r\n  \"description\": \"Nueva descripción\",\r\n  \"icon\": \"🆕\",\r\n  \"color\": \"#FF00FF\",\r\n  \"slug\": \"subcategoria-actualizada\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{movilRoute}}subcategories/68a923309af14df02b26b990",
+									"host": [
+										"{{movilRoute}}subcategories"
+									],
+									"path": [
+										"68a923309af14df02b26b990"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Activar/desactivar subcategoria",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PATCH",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}subcategories/68a923309af14df02b26b990/toggle-status",
+									"host": [
+										"{{movilRoute}}subcategories"
+									],
+									"path": [
+										"68a923309af14df02b26b990",
+										"toggle-status"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Eliminar subcategoria",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}subcategories/68a935e10a294754d7c0ddbf",
+									"host": [
+										"{{movilRoute}}subcategories"
+									],
+									"path": [
+										"68a935e10a294754d7c0ddbf"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Productos",
+					"item": [
+						{
+							"name": "Crear producto",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"Nuevo Producto\",\r\n  \"description\": \"Descripción del producto\",\r\n  \"sku\": \"ABC123\",\r\n  \"price\": 99.99,\r\n  \"stock\": {\r\n    \"quantity\": 10,\r\n    \"minStock\": 1,\r\n    \"trackStock\": true\r\n  },\r\n  \"category\": \"68a923309af14df02b26b987\",\r\n  \"subcategory\": \"68a923309af14df02b26b98f\",\r\n  \"image\": \"https://ejemplo.com/imagen.jpg\",\r\n  \"isFeatured\": true,\r\n  \"color\": \"#FF0000\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{movilRoute}}products",
+									"host": [
+										"{{movilRoute}}products"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Ordenar productos",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"sortOrder\": [\r\n    \"68a923309af14df02b26b99e\",\r\n    \"68a923309af14df02b26b9a2\"\r\n  ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{movilRoute}}products/reorder",
+									"host": [
+										"{{movilRoute}}products"
+									],
+									"path": [
+										"reorder"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener todos los productos",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}products",
+									"host": [
+										"{{movilRoute}}products"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener todos los productos activos",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}products/active",
+									"host": [
+										"{{movilRoute}}products"
+									],
+									"path": [
+										"active"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener producto por id",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}products/68a923309af14df02b26b99e",
+									"host": [
+										"{{movilRoute}}products"
+									],
+									"path": [
+										"68a923309af14df02b26b99e"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener producto por sku",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}products/sku/IPH15PRO001",
+									"host": [
+										"{{movilRoute}}products"
+									],
+									"path": [
+										"sku",
+										"IPH15PRO001"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener producto destacado",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}products/featured",
+									"host": [
+										"{{movilRoute}}products"
+									],
+									"path": [
+										"featured"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener estadisticas de productos",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}products/stats",
+									"host": [
+										"{{movilRoute}}products"
+									],
+									"path": [
+										"stats"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener producto por categorias",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}products/category/68a923309af14df02b26b988",
+									"host": [
+										"{{movilRoute}}products"
+									],
+									"path": [
+										"category",
+										"68a923309af14df02b26b988"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener producto por subcategorias",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}products/subcategory/68a923309af14df02b26b98e",
+									"host": [
+										"{{movilRoute}}products"
+									],
+									"path": [
+										"subcategory",
+										"68a923309af14df02b26b98e"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Actualizar producto",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"Nuevo Producto\",\r\n  \"description\": \"Descripción del producto\",\r\n  \"sku\": \"ABC123\",\r\n  \"price\": 89.99,\r\n  \"stock\": {\r\n    \"quantity\": 10,\r\n    \"minStock\": 1,\r\n    \"trackStock\": true\r\n  },\r\n  \"category\": \"68a923309af14df02b26b987\",\r\n  \"subcategory\": \"68a923309af14df02b26b98f\",\r\n  \"image\": \"https://ejemplo.com/imagen.jpg\",\r\n  \"isFeatured\": false,\r\n  \"color\": \"#FF0000\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{movilRoute}}products/68a941df1e3c59e110081619",
+									"host": [
+										"{{movilRoute}}products"
+									],
+									"path": [
+										"68a941df1e3c59e110081619"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Activar/desactivar producto",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{movilRoute}}products/68a941df1e3c59e110081619/toggle-status",
+									"host": [
+										"{{movilRoute}}products"
+									],
+									"path": [
+										"68a941df1e3c59e110081619",
+										"toggle-status"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Actualizar stock de un producto",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"stock\": { \"quantity\": 20, \"minStock\": 1, \"trackStock\": true }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{movilRoute}}products/68a923309af14df02b26b99e/stock",
+									"host": [
+										"{{movilRoute}}products"
+									],
+									"path": [
+										"68a923309af14df02b26b99e",
+										"stock"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Eliminar producto",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{movilRoute}}products/68a941df1e3c59e110081619",
+									"host": [
+										"{{movilRoute}}products"
+									],
+									"path": [
+										"68a941df1e3c59e110081619"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "COORDINADOR",
+			"item": [
+				{
+					"name": "Usuarios",
+					"item": [
+						{
+							"name": "Login",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"email\": \"coordinador@ejemplo.com\",\r\n  \"password\": \"coord123\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{movilRoute}}auth/login",
+									"host": [
+										"{{movilRoute}}auth"
+									],
+									"path": [
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Logout",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{coordToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{movilRoute}}auth/logout",
+									"host": [
+										"{{movilRoute}}auth"
+									],
+									"path": [
+										"logout"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Crear usuario",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{coordToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"username\": \"coordinador2\",\r\n  \"email\": \"nuevo@ejemplo.com\",\r\n  \"password\": \"clave123\",\r\n  \"firstName\": \"Nuevo\",\r\n  \"lastName\": \"Usuario\",\r\n  \"role\": \"coordinador\",\r\n  \"phone\": \"3001234569\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{movilRoute}}users",
+									"host": [
+										"{{movilRoute}}users"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Verificar token",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{coordToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{movilRoute}}auth/verify",
+									"host": [
+										"{{movilRoute}}auth"
+									],
+									"path": [
+										"verify"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener todos los usuarios",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{coordToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}users",
+									"host": [
+										"{{movilRoute}}users"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener usuario por id",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{coordToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}users/68a923309af14df02b26b983",
+									"host": [
+										"{{movilRoute}}users"
+									],
+									"path": [
+										"68a923309af14df02b26b983"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener usuario autenticado",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{coordToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{movilRoute}}auth/me",
+									"host": [
+										"{{movilRoute}}auth"
+									],
+									"path": [
+										"me"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener estadisticas de usuarios",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{coordToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}users/stats",
+									"host": [
+										"{{movilRoute}}users"
+									],
+									"path": [
+										"stats"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Cambiar contraseña",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{coordToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"currentPassword\": \"admin123\",\r\n  \"newPassword\": \"admin456\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{movilRoute}}auth/change-password",
+									"host": [
+										"{{movilRoute}}auth"
+									],
+									"path": [
+										"change-password"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Actualizar usuario",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{coordToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"firstName\": \"Nombrenuevo\",\r\n  \"lastName\": \"Apellidonuevo\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{movilRoute}}users/68a946dd4cbf73b90ffee1f8",
+									"host": [
+										"{{movilRoute}}users"
+									],
+									"path": [
+										"68a946dd4cbf73b90ffee1f8"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Activar/desactivar usuario",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{coordToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PATCH",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}users/68a946dd4cbf73b90ffee1f8/toggle-status",
+									"host": [
+										"{{movilRoute}}users"
+									],
+									"path": [
+										"68a946dd4cbf73b90ffee1f8",
+										"toggle-status"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Eliminar usuario",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{coordToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}users/68a946dd4cbf73b90ffee1f8",
+									"host": [
+										"{{movilRoute}}users"
+									],
+									"path": [
+										"68a946dd4cbf73b90ffee1f8"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Categorias",
+					"item": [
+						{
+							"name": "Crear categoria",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{coordToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"Nueva Categoría\",\r\n  \"description\": \"Descripción de la categoría\",\r\n  \"icon\": \"📦\",\r\n  \"color\": \"#FF0000\",\r\n  \"slug\": \"nueva-categoria\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{movilRoute}}categories",
+									"host": [
+										"{{movilRoute}}categories"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Ordenar categorias",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{coordToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"sortOrder\": [\r\n    \"68a923309af14df02b26b989\",\r\n    \"68a923309af14df02b26b988\"\r\n  ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{movilRoute}}categories/reorder",
+									"host": [
+										"{{movilRoute}}categories"
+									],
+									"path": [
+										"reorder"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener todas las categorias",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{coordToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}categories",
+									"host": [
+										"{{movilRoute}}categories"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Estadisticas de categorias",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{coordToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}categories/stats",
+									"host": [
+										"{{movilRoute}}categories"
+									],
+									"path": [
+										"stats"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener categoria por id",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{coordToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}categories/68a923309af14df02b26b989",
+									"host": [
+										"{{movilRoute}}categories"
+									],
+									"path": [
+										"68a923309af14df02b26b989"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener categorias activas",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{coordToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}categories/active",
+									"host": [
+										"{{movilRoute}}categories"
+									],
+									"path": [
+										"active"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Actualizar categoria",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{coordToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"Categoría Actualizada\",\r\n  \"description\": \"Nueva descripción\",\r\n  \"icon\": \"🆕\",\r\n  \"color\": \"#00FF00\",\r\n  \"slug\": \"categoria-actualizada\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{movilRoute}}categories/68a9478b4cbf73b90ffee205",
+									"host": [
+										"{{movilRoute}}categories"
+									],
+									"path": [
+										"68a9478b4cbf73b90ffee205"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Activar/desactivar categoria",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{coordToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PATCH",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}categories/68a9478b4cbf73b90ffee205/toggle-status",
+									"host": [
+										"{{movilRoute}}categories"
+									],
+									"path": [
+										"68a9478b4cbf73b90ffee205",
+										"toggle-status"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Eliminar categoria",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{coordToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}categories/68a9478b4cbf73b90ffee205",
+									"host": [
+										"{{movilRoute}}categories"
+									],
+									"path": [
+										"68a9478b4cbf73b90ffee205"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Subcategorias",
+					"item": [
+						{
+							"name": "Crear subcategoria",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{coordToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"Nueva Subcategoría\",\r\n  \"description\": \"Descripción de la subcategoría\",\r\n  \"icon\": \"📁\",\r\n  \"color\": \"#00FF00\",\r\n  \"slug\": \"nueva-subcategoria\",\r\n  \"category\": \"68a923309af14df02b26b987\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{movilRoute}}subcategories",
+									"host": [
+										"{{movilRoute}}subcategories"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Ordenar subcategorias",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{coordToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"sortOrder\": [\r\n    \"68a923309af14df02b26b98f\",\r\n    \"68a923309af14df02b26b991\"\r\n  ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{movilRoute}}subcategories/reorder",
+									"host": [
+										"{{movilRoute}}subcategories"
+									],
+									"path": [
+										"reorder"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener todas las subcategorias",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{coordToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}subcategories",
+									"host": [
+										"{{movilRoute}}subcategories"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Estadisticas de subcategorias",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{coordToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}subcategories/stats",
+									"host": [
+										"{{movilRoute}}subcategories"
+									],
+									"path": [
+										"stats"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener subcategoria por id",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{coordToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}subcategories/68a94a61dade314402efc48f",
+									"host": [
+										"{{movilRoute}}subcategories"
+									],
+									"path": [
+										"68a94a61dade314402efc48f"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener todas las subcategorias activas",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{coordToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}subcategories/active",
+									"host": [
+										"{{movilRoute}}subcategories"
+									],
+									"path": [
+										"active"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener todas las subcategorias por categoria",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{coordToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}subcategories/category/68a923309af14df02b26b987",
+									"host": [
+										"{{movilRoute}}subcategories"
+									],
+									"path": [
+										"category",
+										"68a923309af14df02b26b987"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Actualizar subcategoria",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{coordToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"Subcategoría Actualizada\",\r\n  \"category\": \"68a923309af14df02b26b987\",\r\n  \"description\": \"Nueva descripción\",\r\n  \"icon\": \"🆕\",\r\n  \"color\": \"#FF00FF\",\r\n  \"slug\": \"subcategoria-actualizada\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{movilRoute}}subcategories/68a94a61dade314402efc48f",
+									"host": [
+										"{{movilRoute}}subcategories"
+									],
+									"path": [
+										"68a94a61dade314402efc48f"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Activar/desactivar subcategoria",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{coordToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PATCH",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}subcategories/68a94a61dade314402efc48f/toggle-status",
+									"host": [
+										"{{movilRoute}}subcategories"
+									],
+									"path": [
+										"68a94a61dade314402efc48f",
+										"toggle-status"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Eliminar subcategoria",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{coordToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}subcategories/68a94a61dade314402efc48f",
+									"host": [
+										"{{movilRoute}}subcategories"
+									],
+									"path": [
+										"68a94a61dade314402efc48f"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Productos",
+					"item": [
+						{
+							"name": "Crear producto",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{coordToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"Nuevo Producto\",\r\n  \"description\": \"Descripción del producto\",\r\n  \"sku\": \"ABC123\",\r\n  \"price\": 99.99,\r\n  \"stock\": {\r\n    \"quantity\": 10,\r\n    \"minStock\": 1,\r\n    \"trackStock\": true\r\n  },\r\n  \"category\": \"68a923309af14df02b26b987\",\r\n  \"subcategory\": \"68a923309af14df02b26b98f\",\r\n  \"image\": \"https://ejemplo.com/imagen.jpg\",\r\n  \"isFeatured\": true,\r\n  \"color\": \"#FF0000\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{movilRoute}}products",
+									"host": [
+										"{{movilRoute}}products"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Ordenar productos",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"sortOrder\": [\r\n    \"68a923309af14df02b26b99e\",\r\n    \"68a923309af14df02b26b9a2\"\r\n  ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{movilRoute}}products/reorder",
+									"host": [
+										"{{movilRoute}}products"
+									],
+									"path": [
+										"reorder"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener todos los productos",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{coordToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}products",
+									"host": [
+										"{{movilRoute}}products"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener todos los productos activos",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{coordToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}products/active",
+									"host": [
+										"{{movilRoute}}products"
+									],
+									"path": [
+										"active"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener producto por id",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{coordToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}products/68a923309af14df02b26b99e",
+									"host": [
+										"{{movilRoute}}products"
+									],
+									"path": [
+										"68a923309af14df02b26b99e"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener producto por sku",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{coordToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}products/sku/IPH15PRO001",
+									"host": [
+										"{{movilRoute}}products"
+									],
+									"path": [
+										"sku",
+										"IPH15PRO001"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener producto destacado",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{coordToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}products/featured",
+									"host": [
+										"{{movilRoute}}products"
+									],
+									"path": [
+										"featured"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener estadisticas de productos",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{coordToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}products/stats",
+									"host": [
+										"{{movilRoute}}products"
+									],
+									"path": [
+										"stats"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener producto por categorias",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{coordToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}products/category/68a923309af14df02b26b988",
+									"host": [
+										"{{movilRoute}}products"
+									],
+									"path": [
+										"category",
+										"68a923309af14df02b26b988"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener producto por subcategorias",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{coordToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{movilRoute}}products/subcategory/68a923309af14df02b26b98e",
+									"host": [
+										"{{movilRoute}}products"
+									],
+									"path": [
+										"subcategory",
+										"68a923309af14df02b26b98e"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Actualizar producto",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{coordToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"Nuevo Producto\",\r\n  \"description\": \"Descripción del producto\",\r\n  \"sku\": \"ABC123\",\r\n  \"price\": 89.99,\r\n  \"stock\": {\r\n    \"quantity\": 10,\r\n    \"minStock\": 1,\r\n    \"trackStock\": true\r\n  },\r\n  \"category\": \"68a923309af14df02b26b987\",\r\n  \"subcategory\": \"68a923309af14df02b26b98f\",\r\n  \"image\": \"https://ejemplo.com/imagen.jpg\",\r\n  \"isFeatured\": false,\r\n  \"color\": \"#FF0000\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{movilRoute}}products/68a94c6bbfb2bc4927b61f48",
+									"host": [
+										"{{movilRoute}}products"
+									],
+									"path": [
+										"68a94c6bbfb2bc4927b61f48"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Activar/desactivar producto",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{coordToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{movilRoute}}products/68a94c6bbfb2bc4927b61f48/toggle-status",
+									"host": [
+										"{{movilRoute}}products"
+									],
+									"path": [
+										"68a94c6bbfb2bc4927b61f48",
+										"toggle-status"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Actualizar stock de un producto",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{coordToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"stock\": { \"quantity\": 20, \"minStock\": 1, \"trackStock\": true }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{movilRoute}}products/68a94c6bbfb2bc4927b61f48/stock",
+									"host": [
+										"{{movilRoute}}products"
+									],
+									"path": [
+										"68a94c6bbfb2bc4927b61f48",
+										"stock"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Eliminar producto",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{coordToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{movilRoute}}products/68a94c6bbfb2bc4927b61f48",
+									"host": [
+										"{{movilRoute}}products"
+									],
+									"path": [
+										"68a94c6bbfb2bc4927b61f48"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		}
+	]
+}

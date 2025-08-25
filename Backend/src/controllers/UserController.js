@@ -74,6 +74,14 @@ const createUser = asyncHandler(async (req, res) => {
         isActive
     } = req.body;
 
+    // No permitir que un coordinador cree usuarios admin
+    if (req.user.role === 'coordinador' && role === 'admin') {
+        return res.status(403).json({
+            success: false,
+            message: 'No tienes permisos para crear usuarios administradores'
+        });
+    }
+
     //validaciones
     if (!username || !email || !password || !firstName || !lastName || !role) {
         return res.status(400).json({
@@ -132,6 +140,14 @@ const updateUser = asyncHandler(async (req, res) => {
         phone, 
         isActive 
     } = req.body;
+
+    // No permitir que un coordinador cambie el rol a admin
+    if (req.user.role === 'coordinador' && role === 'admin') {
+        return res.status(403).json({
+            success: false,
+            message: 'No tienes permisos para asignar el rol de administrador'
+        });
+    }
 
     //verificar duplicados
     if (username && username !== user.username) {
@@ -210,6 +226,14 @@ const toggleUserStatus = asyncHandler(async (req, res) => {
         return res.status(400).json({
             success: false,
             message: 'No puedes desactivar tu propio usuario'
+        });
+    }
+
+    // No permitir que un coordinador desactive un admin
+    if (req.user.role === 'coordinador' && user.role === 'admin') {
+        return res.status(403).json({
+            success: false,
+            message: 'No tienes permisos para desactivar un usuario administrador'
         });
     }
 

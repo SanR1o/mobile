@@ -25,7 +25,7 @@ router.get('/stats', verifyAdmin, getUserStats);
 router.get('/', verifyAdminCoordinador, getUsers);
 router.get('/:id', validateObjectId('id'), verifyAdminOrOwner, getUserById);
 
-router.post('/', verifyAdminCoordinador, createUser);
+router.post('/', verifyAdmin, createUser);
 router.put('/:id', validateObjectId('id'), verifyAdminCoordinador, updateUser);
 router.delete('/:id', validateObjectId('id'), verifyAdmin, deleteUser);
 router.patch('/:id/toggle-status', validateObjectId('id'), verifyAdminCoordinador, toggleUserStatus);

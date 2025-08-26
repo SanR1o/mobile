@@ -186,7 +186,8 @@ const updateCategory = asyncHandler(async (req, res) => {
         icon,
         color,
         isActive,
-        sortOrder
+        sortOrder,
+        slug
     } = req.body;
 
     //verificar duplicados
@@ -202,7 +203,17 @@ const updateCategory = asyncHandler(async (req, res) => {
             return;
         }
     }
-
+    // Validar slug duplicado
+    if (slug && slug !== category.slug) {
+        const existingSlug = await Category.findOne({ slug });
+        if (existingSlug) {
+            return res.status(400).json({
+                success: false,
+                message: 'Ya existe una categoría con este slug',
+                errors: ['El slug de la categoría ya está en uso']
+            });
+        }
+    }
     //actualizar la categoria
     if (name) category.name = name;
     if (description !== undefined) category.description = description;
@@ -210,6 +221,7 @@ const updateCategory = asyncHandler(async (req, res) => {
     if (color !== undefined) category.color = color;
     if (isActive !== undefined) category.isActive = isActive;
     if (sortOrder !== undefined) category.sortOrder = sortOrder;
+    if (slug) category.slug = slug;
     category.updatedBy = req.user._id;
 
     await category.save();

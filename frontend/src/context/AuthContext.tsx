@@ -121,21 +121,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return user?.role === role
     };
 
-const isAuthenticated = !!user;
 
-//datos de las funciones
+    const isAuthenticated = !!user;
+
     const value: AuthContextType = {
-            user,
-            isAuthenticated,
-            isLoading,
-            login,
-            logout: async () => {},
-            refresh: async () => {},
-            canDelete: () => false,
-            canEdit: () => false,
-            hasRole: () => false
+        user,
+        isAuthenticated,
+        isLoading,
+        login,
+        logout,
+        refresh,
+        canDelete,
+        canEdit,
+        hasRole
     };
-};
+
+    return (
+        <AuthContext.Provider value={value}>
+            {children}
+        </AuthContext.Provider>
+    );
+}
 
 export const useAuth = (): AuthContextType => {
     const context = useContext(AuthContext);

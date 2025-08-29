@@ -19,6 +19,12 @@ export const apiService = {
             data: null
         };
     },
+    patch: async (endpoint: string, data: any) => {
+        return {
+            success: true,
+            data: null
+        };
+    },
     delete: async (endpoint: string) => {
         return {
             success: true,

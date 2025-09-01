@@ -21,6 +21,7 @@ import { useNavigation } from "@react-navigation/native";
 import { apiService } from '../services/api';
 import { Category } from '../types'; 
 import { globalStyles, componentStyles, colors, spacing } from "../styles";
+import { set } from "mongoose";
 
 const CategoriesScreen: React.FC = () => {
     const { canEdit, canDelete } = useAuth();
@@ -210,27 +211,73 @@ const CategoriesScreen: React.FC = () => {
             canEdit: canEdit(),
         });
         return (
-            <View style={[
-                componentStyles.baseCard,
-                !category.isActive && componentStyles.cardInactive
+        <View style={[
+            componentStyles.baseCard,
+            !category.isActive && componentStyles.cardInactive
             ]}>
-                <View style={componentStyles.cardHeader}>
+            <View style={componentStyles.cardHeader}>
                 <View style={componentStyles.cardInfo}>
-                <View style={componentStyles.titleRow}>
-                    <Text style={[
-                        componentStyles.cardTitle,
-                        !category.isActive && componentStyles.cardInactive
-                    ]}>
-                        {category.name}
-                    </Text>
-                    <View style={[
-                        
-                    ]}>
+                    <View style={componentStyles.titleRow}>
+                        <Text style={[
+                            componentStyles.cardTitle,
+                            !category.isActive && componentStyles.cardInactive
+                        ]}>
+                            {category.name}
+                        </Text>
+                        <Text style={[
+                            componentStyles.cardTitle, !category.isActive && componentStyles.cardInactive
+                        ]}>
+                            {category.name}
+                        </Text>
+                        <Text style={[
+                            componentStyles.statusBadge, category.isActive ? 
+                            componentStyles.statusBadgeActive : 
+                            componentStyles.statusBadgeInactive
+                        ]}>
+                            {category.isActive ? 'Activo' : 'Inactivo'}
+                        </Text>
                     </View>
                 </View>
-                </View>
-                </View>
+                {category.description && (
+                    <Text style={[
+                        componentStyles.cardDescription,
+                        !category.isActive && componentStyles.cardDescriptionInactive
+                    ]}>
+                        {category.description}
+                    </Text>
+                )}
+                <Text style={[componentStyles.cardActions]}>
+                    <TouchableOpacity
+                        style={componentStyles.actionButton}
+                    >
+                        <Text style={[componentStyles.toggleButton, !category.isActive ?componentStyles.toggleButtonActive : componentStyles.toggleButtonInactive 
+                        ]}
+                        onPress={() => handleToggleStatus(category)}
+                        >
+                            <Text style={componentStyles.toggleButtonText}>
+                                {category.isActive ? 'Desactivar' : 'Activar'}
+                            </Text>
+                        </Text>
+                    </TouchableOpacity>
+                    {canEdit() && (
+                        <TouchableOpacity
+                            style={[componentStyles.actionButton, componentStyles.editButton]}
+                            onPress={() => openEditModal(category)}
+                        >
+                            <Ionicons name="create" size={18} color="white" />
+                        </TouchableOpacity>
+                    )}
+                    {canDelete() && (
+                        <TouchableOpacity
+                            style={[componentStyles.actionButton, componentStyles.deleteButton]}
+                            onPress={() => handleDelete(category)}
+                        >
+                            <Ionicons name="trash" size={18} color="white" />
+                        </TouchableOpacity>
+                    )}
+                </Text>
             </View>
+        </View>
         );
     };
 

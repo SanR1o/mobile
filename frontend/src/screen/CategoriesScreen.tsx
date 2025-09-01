@@ -152,7 +152,8 @@ const CategoriesScreen: React.FC = () => {
                             //manejo de errores
                             const errorMessage = error.message || '';
                             if (errorMessage.includes('subcategories associated') ||
-                                errorMessage.toLowerCase().includes('subcategorías asociadas')) {
+                                errorMessage.toLowerCase().includes('subcategorías asociadas') ||
+                                errorMessage.toLowerCase().includes('subcategorias asociadas')) {
                                 Alert.alert(
                                     "Error", "No se puede eliminar una categoría con subcategorías asociadas. Elimine o reasigne las subcategorías asociadas a esta categoría.",
                                     [{ text: "Entendido", style: "default" }]
@@ -205,82 +206,74 @@ const CategoriesScreen: React.FC = () => {
     };
 
     const CategoryCard: React.FC<{ category: Category }> = ({ category }) => {
-        console.log('category data:', {
-            name: category.name,
-            isActive: category.isActive,
-            canEdit: canEdit(),
-        });
         return (
-        <View style={[
-            componentStyles.baseCard,
-            !category.isActive && componentStyles.cardInactive
+            <View style={[
+                componentStyles.baseCard,
+                !category.isActive && componentStyles.cardInactive
             ]}>
-            <View style={componentStyles.cardHeader}>
-                <View style={componentStyles.cardInfo}>
-                    <View style={componentStyles.titleRow}>
-                        <Text style={[
-                            componentStyles.cardTitle,
-                            !category.isActive && componentStyles.cardInactive
-                        ]}>
-                            {category.name}
-                        </Text>
-                        <Text style={[
-                            componentStyles.cardTitle, !category.isActive && componentStyles.cardInactive
-                        ]}>
-                            {category.name}
-                        </Text>
-                        <Text style={[
-                            componentStyles.statusBadge, category.isActive ? 
-                            componentStyles.statusBadgeActive : 
-                            componentStyles.statusBadgeInactive
-                        ]}>
-                            {category.isActive ? 'Activo' : 'Inactivo'}
-                        </Text>
+                <View style={componentStyles.cardHeader}>
+                    <View style={componentStyles.cardInfo}>
+                        <View style={componentStyles.titleRow}>
+                            <Text style={[
+                                componentStyles.cardTitle,
+                                !category.isActive && componentStyles.cardInactive
+                            ]}>
+                                {category.name}
+                            </Text>
+                            <Text style={[
+                                componentStyles.statusBadge, category.isActive ? 
+                                componentStyles.statusBadgeActive : 
+                                componentStyles.statusBadgeInactive
+                            ]}>
+                                {category.isActive ? 'Activo' : 'Inactivo'}
+                            </Text>
+                        </View>
                     </View>
-                </View>
-                {category.description && (
-                    <Text style={[
-                        componentStyles.cardDescription,
-                        !category.isActive && componentStyles.cardDescriptionInactive
-                    ]}>
-                        {category.description}
+                    {category.description && (
+                        <Text style={[
+                            componentStyles.cardDescription,
+                            !category.isActive && componentStyles.cardDescriptionInactive
+                        ]}>
+                            {category.description}
+                        </Text>
+                    )}
+                    <Text style={componentStyles.cardDate}>
+                        Creado: {new Date(category.createdAt).toLocaleDateString()}
                     </Text>
-                )}
-                <Text style={componentStyles.cardDate}>
-                    Creado: {new Date(category.createdAt).toLocaleDateString()}
-                </Text>
-                <Text style={[componentStyles.cardActions]}>
-                    <TouchableOpacity
-                        style={componentStyles.actionButton}
-                    >
-                        <Text style={[componentStyles.toggleButton, !category.isActive ?componentStyles.toggleButtonActive : componentStyles.toggleButtonInactive 
-                        ]}
-                        onPress={() => handleToggleStatus(category)}
+                    <View style={componentStyles.cardActions}>
+                        <TouchableOpacity
+                            style={componentStyles.actionButton}
+                            onPress={() => handleToggleStatus(category)}
+                            accessibilityLabel={category.isActive ? 'Desactivar categoría' : 'Activar categoría'}
                         >
-                            <Text style={componentStyles.toggleButtonText}>
+                            <Text style={[
+                                componentStyles.toggleButton,
+                                !category.isActive ? componentStyles.toggleButtonActive : componentStyles.toggleButtonInactive
+                            ]}>
                                 {category.isActive ? 'Desactivar' : 'Activar'}
                             </Text>
-                        </Text>
-                    </TouchableOpacity>
-                    {canEdit() && (
-                        <TouchableOpacity
-                            style={[componentStyles.actionButton, componentStyles.editButton]}
-                            onPress={() => openEditModal(category)}
-                        >
-                            <Ionicons name="create" size={18} color="white" />
                         </TouchableOpacity>
-                    )}
-                    {canDelete() && (
-                        <TouchableOpacity
-                            style={[componentStyles.actionButton, componentStyles.deleteButton]}
-                            onPress={() => handleDelete(category)}
-                        >
-                            <Ionicons name="trash" size={18} color="white" />
-                        </TouchableOpacity>
-                    )}
-                </Text>
+                        {canEdit() && (
+                            <TouchableOpacity
+                                style={[componentStyles.actionButton, componentStyles.editButton, { marginLeft: 8 }]}
+                                onPress={() => openEditModal(category)}
+                                accessibilityLabel="Editar categoría"
+                            >
+                                <Ionicons name="create" size={18} color="white" />
+                            </TouchableOpacity>
+                        )}
+                        {canDelete() && (
+                            <TouchableOpacity
+                                style={[componentStyles.actionButton, componentStyles.deleteButton, { marginLeft: 8 }]}
+                                onPress={() => handleDelete(category)}
+                                accessibilityLabel="Eliminar categoría"
+                            >
+                                <Ionicons name="trash" size={18} color="white" />
+                            </TouchableOpacity>
+                        )}
+                    </View>
+                </View>
             </View>
-        </View>
         );
     };
 
@@ -384,24 +377,24 @@ const CategoriesScreen: React.FC = () => {
                             />
                         </View>
 
-                        <View style={{flexDirection: 'row', justifyContent: 'flex-end', gap: 16, marginTop: 16}}>
+                        <View style={{flexDirection: 'row', justifyContent: 'flex-end', marginTop: 16}}>
                             <TouchableOpacity
-                            style={globalStyles.secondaryButtonText}
-                            onPress={closeModal}
+                                style={globalStyles.secondaryButtonText}
+                                onPress={closeModal}
+                                accessibilityLabel="Cancelar"
                             >
                                 <Text style={globalStyles.secondaryButtonText}>Cancelar</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
-                            style={globalStyles.secondaryButtonText}
-                            onPress={handleSave}
-                            disabled={isLoading}
+                                style={[globalStyles.secondaryButtonText, { marginLeft: 8 }]}
+                                onPress={handleSave}
+                                disabled={isLoading || !formData.name.trim()}
+                                accessibilityLabel={editingCategory ? 'Editar categoría' : 'Crear categoría'}
                             >
                                 {isLoading ? (
-                                    <ActivityIndicator color="fffff" size="small"/>
+                                    <ActivityIndicator color="#fff" size="small" />
                                 ) : (
-                                    <Text
-                                    style={globalStyles.primaryButtonText}
-                                    >
+                                    <Text style={globalStyles.primaryButtonText}>
                                         {editingCategory ? 'Editar Categoría' : 'Nueva Categoría'}
                                     </Text>
                                 )}

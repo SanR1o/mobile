@@ -201,218 +201,217 @@ const SubcategoriesScreen: React.FC = () => {
     const SubcategoryCard: React.FC<{ subcategory: Subcategory }> = ({ subcategory }) => {
         const categoryName = getCategoryName(subcategory.categoryId);
         return (
-                    <View style={[
-                        componentStyles.baseCard,
-                        !subcategory.isActive && componentStyles.cardInactive
-                    ]}>
-                        <View style={componentStyles.cardHeader}>
-                            <View style={componentStyles.cardInfo}>
-                                <View style={componentStyles.titleRow}>
-                                    <Text style={[
-                                        componentStyles.cardTitle,
-                                        !subcategory.isActive && componentStyles.cardInactive
-                                    ]}>
-                                        {subcategory.name}
-                                    </Text>
-                                    <Text style={[
-                                        componentStyles.statusBadge, subcategory.isActive ? 
-                                        componentStyles.statusBadgeActive : 
-                                        componentStyles.statusBadgeInactive
-                                    ]}>
-                                        {subcategory.isActive ? 'Activo' : 'Inactivo'}
-                                    </Text>
-                                </View>
-                            </View>
-                            {subcategory.description && (
+                <View style={[
+                    componentStyles.baseCard,
+                    !subcategory.isActive && componentStyles.cardInactive
+                ]}>
+                    <View style={componentStyles.cardHeader}>
+                        <View style={componentStyles.cardInfo}>
+                            <View style={componentStyles.titleRow}>
                                 <Text style={[
-                                    componentStyles.cardDescription,
-                                    !subcategory.isActive && componentStyles.cardDescriptionInactive
+                                    componentStyles.cardTitle,
+                                    !subcategory.isActive && componentStyles.cardInactive
                                 ]}>
-                                    {subcategory.description}
+                                    {subcategory.name}
                                 </Text>
-                            )}
-                            <Text style={componentStyles.cardDate}>
-                                Creado: {new Date(subcategory.createdAt).toLocaleDateString()}
+                                <Text style={[
+                                    componentStyles.statusBadge, subcategory.isActive ? 
+                                    componentStyles.statusBadgeActive : 
+                                    componentStyles.statusBadgeInactive
+                                ]}>
+                                    {subcategory.isActive ? 'Activo' : 'Inactivo'}
+                                </Text>
+                            </View>
+                        </View>
+                        {subcategory.description && (
+                            <Text style={[
+                                componentStyles.cardDescription,
+                                !subcategory.isActive && componentStyles.cardDescriptionInactive
+                            ]}>
+                                {subcategory.description}
                             </Text>
-                            <View style={componentStyles.cardActions}>
-                                <TouchableOpacity
-                                    style={componentStyles.actionButton}
-                                    onPress={() => handleToggleStatus(subcategory)}
-                                    accessibilityLabel={subcategory.isActive ? 'Desactivar subcategoría' : 'Activar subcategoría'}
-                                >
-                                    <Text style={[
-                                        componentStyles.toggleButton,
-                                        !subcategory.isActive ? componentStyles.toggleButtonActive : componentStyles.toggleButtonInactive
-                                    ]}>
-                                        {subcategory.isActive ? 'Desactivar' : 'Activar'}
-                                    </Text>
-                                </TouchableOpacity>
-                                {canEdit() && (
-                                    <TouchableOpacity
-                                        style={[componentStyles.actionButton, componentStyles.editButton, { marginLeft: 8 }]}
-                                        onPress={() => openEditModal(subcategory)}
-                                        accessibilityLabel="Editar subcategoría"
-                                    >
-                                        <Ionicons name="create" size={18} color="white" />
-                                    </TouchableOpacity>
-                                )}
-                                {canDelete() && (
-                                    <TouchableOpacity
-                                        style={[componentStyles.actionButton, componentStyles.deleteButton, { marginLeft: 8 }]}
-                                        onPress={() => handleDelete(subcategory)}
-                                        accessibilityLabel="Eliminar subcategoría"
-                                    >
-                                        <Ionicons name="trash" size={18} color="white" />
-                                    </TouchableOpacity>
-                                )}
-                            </View>
-                        </View>
-                    </View>
-                );
-            };
-        
-            if (isLoading || isRefreshing) {
-                return (
-                    <View style={globalStyles.loadingContainer}>
-                        <ActivityIndicator size="large" color="#4ECDC4" />
-                        <Text style={globalStyles.loadingText}>Cargando subcategorías...</Text>
-                    </View>
-                );
-            }
-        
-            return (
-                <View style={globalStyles.screenContainer}>
-                    <View style={globalStyles.screenHeader}>
-                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                            <Ionicons name="folder" size={24} color="white" style={{ marginRight: 8 }} />
-                            <Text style={globalStyles.headerTitle}>Categorías</Text>
-                        </View>
-                        {canEdit() && (
+                        )}
+                        <Text style={componentStyles.cardDate}>
+                            Creado: {new Date(subcategory.createdAt).toLocaleDateString()}
+                        </Text>
+                        <View style={componentStyles.cardActions}>
                             <TouchableOpacity
-                                style={globalStyles.primaryButton}
-                                onPress={openCreateModal}
+                                style={componentStyles.actionButton}
+                                onPress={() => handleToggleStatus(subcategory)}
+                                accessibilityLabel={subcategory.isActive ? 'Desactivar subcategoría' : 'Activar subcategoría'}
                             >
-                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                    <Ionicons name="add" size={24} color="white" style={{ marginRight: 8 }} />
-                                    <Text style={globalStyles.headerTitle}>Agregar</Text>
-                                </View>
-                            </TouchableOpacity>
-                        )}
-                    </View>
-                    <ScrollView
-                        style={globalStyles.screenContainer}
-                        refreshControl={
-                            <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} colors={["#4ECDC4"]} />
-                        }
-                    >
-                        {categories.length === 0 ? (
-                            <View style={globalStyles.emptyStateContainer}>
-                                <Text style={globalStyles.titleText}>Subcategorias</Text>
-                                <Text style={globalStyles.emptyTitleText}>No hay subcategorías disponibles.</Text>
-                                <Text style={globalStyles.emptySubtitleText}>
-                                    {canEdit() ? 'Toca "Agregar" para crear una subcategoría.' : 'No se han creado subcategorías aún.'}
+                                <Text style={[
+                                    componentStyles.toggleButton,
+                                    !subcategory.isActive ? componentStyles.toggleButtonActive : componentStyles.toggleButtonInactive
+                                ]}>
+                                    {subcategory.isActive ? 'Desactivar' : 'Activar'}
                                 </Text>
-                            </View>
-                        ) : (
-                            categories.map((category) => (
-                                <SubcategoryCard key={category.id} subcategory={category} />
-                            ))
-                        )}
-                    </ScrollView>
-        
-                    <Modal
-                        visible={isModalVisible}
-                        animationType="slide"
-                        transparent={false}
-                        onRequestClose={closeModal}
-                    >
-                        <View style={{
-                            flex: 1,
-                            backgroundColor: 'rgba(0,0,0,0.5)',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            padding: spacing.md
-                        }}>
-                            <View style={[globalStyles.card, { width: '100%', maxWidth: 400 }]}>
-                                <View style={globalStyles.cardHeader}>
-                                    <Text style={globalStyles.textTitle}>
-                                        {editingSubcategory ? 'Editar Categoría' : 'Nueva Categoría'}
-                                    </Text>
-                                    <TouchableOpacity 
-                                    style={globalStyles.dangerButton}
-                                    onPress={closeModal}>
-                                        <Text style={globalStyles.dangerButtonText}>X</Text>
-                                    </TouchableOpacity>
-                                </View>
-                                <View style={globalStyles.inputContainer}>
-                                    <Text style={globalStyles.inputLabel}>
-                                        Nombre*
-                                    </Text>
-                                    <TextInput
-                                    style={globalStyles.input}
-                                    value={formData.name}
-                                    onChangeText={(value) => setFormData({ ...formData, name: value })}
-                                    placeholder="Nombre de la subcategoría"
-                                    placeholderTextColor={'#999'}
-                                    />
-                                </View>
-                                    <View style={globalStyles.inputContainer}>
-                                    <Text style={globalStyles.inputLabel}>
-                                        Descripción
-                                    </Text>
-                                    <TextInput
-                                    style={[globalStyles.textInput, {height: 80, textAlignVertical: 'top'}]}
-                                    value={formData.description}
-                                    onChangeText={(value) => setFormData({ ...formData, description: value })}
-                                    placeholder="Descripcion de la subcategoría"
-                                    placeholderTextColor={'#999'}
-                                    multiline={true}
-                                    numberOfLines={3}
-                                    />
-                                </View>
-                                </View>
-                                    <View style={globalStyles.inputContainer}>
-                                    <Text style={globalStyles.inputLabel}>
-                                        Categoría
-                                    </Text>
-                                    <TextInput
-                                    style={[globalStyles.textInput, {height: 80, textAlignVertical: 'top'}]}
-                                    value={formData.categoryId}
-                                    onChangeText={(value) => setFormData({ ...formData, categoryId: value })}
-                                    placeholder="Categoría"
-                                    placeholderTextColor={'#999'}
-                                    multiline={true}
-                                    numberOfLines={3}
-                                    />
-                                </View>
-                                <View style={{flexDirection: 'row', justifyContent: 'flex-end', marginTop: 16}}>
-                                    <TouchableOpacity
-                                        style={globalStyles.secondaryButtonText}
-                                        onPress={closeModal}
-                                        accessibilityLabel="Cancelar"
-                                    >
-                                        <Text style={globalStyles.secondaryButtonText}>Cancelar</Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity
-                                        style={[globalStyles.secondaryButtonText, { marginLeft: 8 }]}
-                                        onPress={handleSave}
-                                        disabled={isLoading || !formData.name.trim()}
-                                        accessibilityLabel={editingSubcategory ? 'Editar categoría' : 'Crear categoría'}
-                                    >
-                                        {isLoading ? (
-                                            <ActivityIndicator color="#fff" size="small" />
-                                        ) : (
-                                            <Text style={globalStyles.primaryButtonText}>
-                                                {editingSubcategory ? 'Editar Categoría' : 'Nueva Categoría'}
-                                            </Text>
-                                        )}
-                                    </TouchableOpacity>
-                                </View>
-                            </View>
+                            </TouchableOpacity>
+                            {canEdit() && (
+                                <TouchableOpacity
+                                    style={[componentStyles.actionButton, componentStyles.editButton, { marginLeft: 8 }]}
+                                    onPress={() => openEditModal(subcategory)}
+                                    accessibilityLabel="Editar subcategoría"
+                                >
+                                    <Ionicons name="create" size={18} color="white" />
+                                </TouchableOpacity>
+                            )}
+                            {canDelete() && (
+                                <TouchableOpacity
+                                    style={[componentStyles.actionButton, componentStyles.deleteButton, { marginLeft: 8 }]}
+                                    onPress={() => handleDelete(subcategory)}
+                                    accessibilityLabel="Eliminar subcategoría"
+                                >
+                                    <Ionicons name="trash" size={18} color="white" />
+                                </TouchableOpacity>
+                            )}
                         </View>
-                    </Modal>
+                    </View>
                 </View>
             );
+        };
+    
+        if (isLoading || isRefreshing) {
+            return (
+                <View style={globalStyles.loadingContainer}>
+                    <ActivityIndicator size="large" color="#4ECDC4" />
+                    <Text style={globalStyles.loadingText}>Cargando subcategorías...</Text>
+                </View>
+            );
+        }
+        
+    return (
+        <View style={globalStyles.screenContainer}>
+            <View style={globalStyles.screenHeader}>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Ionicons name="folder" size={24} color="white" style={{ marginRight: 8 }} />
+                    <Text style={globalStyles.headerTitle}>Categorías</Text>
+                </View>
+                {canEdit() && (
+                    <TouchableOpacity
+                        style={globalStyles.primaryButton}
+                        onPress={openCreateModal}
+                    >
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            <Ionicons name="add" size={24} color="white" style={{ marginRight: 8 }} />
+                            <Text style={globalStyles.headerTitle}>Agregar</Text>
+                        </View>
+                    </TouchableOpacity>
+                )}
+            </View>
+            <ScrollView
+                style={globalStyles.screenContainer}
+                refreshControl={
+                    <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} colors={["#4ECDC4"]} />
+                }
+            >
+                {categories.length === 0 ? (
+                    <View style={globalStyles.emptyStateContainer}>
+                        <Text style={globalStyles.titleText}>Subcategorias</Text>
+                        <Text style={globalStyles.emptyTitleText}>No hay subcategorías disponibles.</Text>
+                        <Text style={globalStyles.emptySubtitleText}>
+                            {canEdit() ? 'Toca "Agregar" para crear una subcategoría.' : 'No se han creado subcategorías aún.'}
+                        </Text>
+                    </View>
+                ) : (
+                    subcategories.map((subcategory) => (
+                        <SubcategoryCard key={subcategory.id} subcategory={subcategory} />
+                    ))
+                )}
+            </ScrollView>
+            <Modal
+                visible={isModalVisible}
+                animationType="slide"
+                transparent={false}
+                onRequestClose={closeModal}
+            >
+                <View style={{
+                    flex: 1,
+                    backgroundColor: 'rgba(0,0,0,0.5)',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    padding: spacing.md
+                }}>
+                    <View style={[globalStyles.card, { width: '100%', maxWidth: 400 }]}> 
+                        <View style={globalStyles.cardHeader}>
+                            <Text style={globalStyles.textTitle}>
+                                {editingSubcategory ? 'Editar Categoría' : 'Nueva Categoría'}
+                            </Text>
+                            <TouchableOpacity 
+                                style={globalStyles.dangerButton}
+                                onPress={closeModal}>
+                                <Text style={globalStyles.dangerButtonText}>X</Text>
+                            </TouchableOpacity>
+                        </View>
+                        <View style={globalStyles.inputContainer}>
+                            <Text style={globalStyles.inputLabel}>
+                                Nombre*
+                            </Text>
+                            <TextInput
+                                style={globalStyles.input}
+                                value={formData.name}
+                                onChangeText={(value) => setFormData({ ...formData, name: value })}
+                                placeholder="Nombre de la subcategoría"
+                                placeholderTextColor={'#999'}
+                            />
+                        </View>
+                        <View style={globalStyles.inputContainer}>
+                            <Text style={globalStyles.inputLabel}>
+                                Descripción
+                            </Text>
+                            <TextInput
+                                style={[globalStyles.textInput, {height: 80, textAlignVertical: 'top'}]}
+                                value={formData.description}
+                                onChangeText={(value) => setFormData({ ...formData, description: value })}
+                                placeholder="Descripcion de la subcategoría"
+                                placeholderTextColor={'#999'}
+                                multiline={true}
+                                numberOfLines={3}
+                            />
+                        </View>
+                        <View style={globalStyles.inputContainer}>
+                            <Text style={globalStyles.inputLabel}>
+                                Categoría
+                            </Text>
+                            <Picker
+                                selectedValue={formData.categoryId}
+                                onValueChange={(value) => setFormData({ ...formData, categoryId: value })}
+                                style={globalStyles.input}
+                            >
+                                <Picker.Item label="Selecciona una categoría" value="" />
+                                {categories.map((cat) => (
+                                    <Picker.Item key={cat.id} label={cat.name} value={cat.id} />
+                                ))}
+                            </Picker>
+                        </View>
+                        <View style={{flexDirection: 'row', justifyContent: 'flex-end', marginTop: 16}}>
+                            <TouchableOpacity
+                                style={globalStyles.secondaryButton}
+                                onPress={closeModal}
+                                accessibilityLabel="Cancelar"
+                            >
+                                <Text style={globalStyles.secondaryButtonText}>Cancelar</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={[globalStyles.secondaryButtonText, { marginLeft: 8 }]}
+                                onPress={handleSave}
+                                disabled={isLoading || !formData.name.trim()}
+                                accessibilityLabel={editingSubcategory ? 'Editar categoría' : 'Crear categoría'}
+                            >
+                                {isLoading ? (
+                                    <ActivityIndicator color="#fff" size="small" />
+                                ) : (
+                                    <Text style={globalStyles.primaryButtonText}>
+                                        {editingSubcategory ? 'Editar Categoría' : 'Nueva Categoría'}
+                                    </Text>
+                                )}
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+        </View>
+    );
 };
 
 export default SubcategoriesScreen;

@@ -80,7 +80,7 @@ const SubcategoriesScreen: React.FC = () => {
         setFormData({
             name: subcategory.name,
             description: subcategory.description,
-            categoryId: subcategory.categoryId
+            categoryId: typeof subcategory.categoryId === 'object' ? subcategory.categoryId : subcategory.category,
         });
         setIsModalVisible(true);
     };
@@ -285,7 +285,7 @@ const SubcategoriesScreen: React.FC = () => {
             <View style={globalStyles.screenHeader}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <Ionicons name="folder" size={24} color="white" style={{ marginRight: 8 }} />
-                    <Text style={globalStyles.headerTitle}>Categorías</Text>
+                    <Text style={globalStyles.headerTitle}>Subcategorías</Text>
                 </View>
                 {canEdit() && (
                     <TouchableOpacity

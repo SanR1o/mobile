@@ -66,8 +66,27 @@ class AuthService {
             return null;
         }
     }
-    
-    
-    //
+
+    //verificar si el usuario está autenticado
+    async isAuthenticated(): Promise<boolean> {
+        const token = await this.getToken();
+        const user = await this.getUser();
+        return !!(token && !!user);
+    }
+
+    //obtener informacion del usuario actual
+    async getCurrentUserInfo(): Promise<User | null> {
+        try {
+            const response = await apiService.get<User>('/auth/me');
+            if (response.success && response.data) {
+                await AsyncStorage.setItem(this.USER_KEY, JSON.stringify(response.data));
+                return response.data
+            } else {
+                throw new Error(response.message || 'Error obteniendo usuario')
+            }
+        } catch (error:any) {
+            throw new Error(error.message || 'Error obteniendo usuario')
+        }
+    }
 
 }

@@ -308,8 +308,8 @@ const SubcategoriesScreen: React.FC = () => {
                 {categories.length === 0 ? (
                     <View style={globalStyles.emptyStateContainer}>
                         <Text style={globalStyles.titleText}>Subcategorias</Text>
-                        <Text style={globalStyles.emptyTitleText}>No hay subcategorías disponibles.</Text>
-                        <Text style={globalStyles.emptySubtitleText}>
+                        <Text style={globalStyles.emptyStateText}>No hay subcategorías disponibles.</Text>
+                        <Text style={globalStyles.emptyStateText}>
                             {canEdit() ? 'Toca "Agregar" para crear una subcategoría.' : 'No se han creado subcategorías aún.'}
                         </Text>
                     </View>
@@ -334,7 +334,7 @@ const SubcategoriesScreen: React.FC = () => {
                 }}>
                     <View style={[globalStyles.card, { width: '100%', maxWidth: 400 }]}> 
                         <View style={globalStyles.cardHeader}>
-                            <Text style={globalStyles.textTitle}>
+                            <Text style={globalStyles.headerTitle}>
                                 {editingSubcategory ? 'Editar Categoría' : 'Nueva Categoría'}
                             </Text>
                             <TouchableOpacity 
@@ -348,7 +348,7 @@ const SubcategoriesScreen: React.FC = () => {
                                 Nombre*
                             </Text>
                             <TextInput
-                                style={globalStyles.input}
+                                style={globalStyles.textInput}
                                 value={formData.name}
                                 onChangeText={(value) => setFormData({ ...formData, name: value })}
                                 placeholder="Nombre de la subcategoría"
@@ -376,7 +376,7 @@ const SubcategoriesScreen: React.FC = () => {
                             <Picker
                                 selectedValue={formData.categoryId}
                                 onValueChange={(value) => setFormData({ ...formData, categoryId: value })}
-                                style={globalStyles.input}
+                                style={globalStyles.textInput}
                             >
                                 <Picker.Item label="Selecciona una categoría" value="" />
                                 {categories.map((cat) => (
@@ -393,7 +393,7 @@ const SubcategoriesScreen: React.FC = () => {
                                 <Text style={globalStyles.secondaryButtonText}>Cancelar</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
-                                style={[globalStyles.secondaryButtonText, { marginLeft: 8 }]}
+                                style={[globalStyles.secondaryButton, { marginLeft: 8 }]}
                                 onPress={handleSave}
                                 disabled={isLoading || !formData.name.trim()}
                                 accessibilityLabel={editingSubcategory ? 'Editar categoría' : 'Crear categoría'}

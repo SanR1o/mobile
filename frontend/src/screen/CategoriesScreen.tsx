@@ -314,8 +314,8 @@ const CategoriesScreen: React.FC = () => {
                 {categories.length === 0 ? (
                     <View style={globalStyles.emptyStateContainer}>
                         <Text style={globalStyles.titleText}>Categorias</Text>
-                        <Text style={globalStyles.emptyTitleText}>No hay categorías disponibles.</Text>
-                        <Text style={globalStyles.emptySubtitleText}>
+                        <Text style={globalStyles.emptyStateText}>No hay categorías disponibles.</Text>
+                        <Text style={globalStyles.emptyStateText}>
                             {canEdit() ? 'Toca "Agregar" para crear una categoría.' : 'No se han creado categorías aún.'}
                         </Text>
                     </View>
@@ -341,7 +341,7 @@ const CategoriesScreen: React.FC = () => {
                 }}>
                     <View style={[globalStyles.card, { width: '100%', maxWidth: 400 }]}>
                         <View style={globalStyles.cardHeader}>
-                            <Text style={globalStyles.textTitle}>
+                            <Text style={globalStyles.headerTitle}>
                                 {editingCategory ? 'Editar Categoría' : 'Nueva Categoría'}
                             </Text>
                             <TouchableOpacity 
@@ -355,7 +355,7 @@ const CategoriesScreen: React.FC = () => {
                                 Nombre*
                             </Text>
                             <TextInput
-                            style={globalStyles.input}
+                            style={globalStyles.textInput}
                             value={formData.name}
                             onChangeText={(value) => setFormData({ ...formData, name: value })}
                             placeholder="Nombre de la categoría"
@@ -379,14 +379,14 @@ const CategoriesScreen: React.FC = () => {
 
                         <View style={{flexDirection: 'row', justifyContent: 'flex-end', marginTop: 16}}>
                             <TouchableOpacity
-                                style={globalStyles.secondaryButtonText}
+                                style={globalStyles.secondaryButton}
                                 onPress={closeModal}
                                 accessibilityLabel="Cancelar"
                             >
                                 <Text style={globalStyles.secondaryButtonText}>Cancelar</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
-                                style={[globalStyles.secondaryButtonText, { marginLeft: 8 }]}
+                                style={[globalStyles.secondaryButton, { marginLeft: 8 }]}
                                 onPress={handleSave}
                                 disabled={isLoading || !formData.name.trim()}
                                 accessibilityLabel={editingCategory ? 'Editar categoría' : 'Crear categoría'}

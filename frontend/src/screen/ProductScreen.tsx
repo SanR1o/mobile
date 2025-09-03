@@ -377,14 +377,14 @@ const ProductsScreen: React.FC = () => {
                                 </Text>
                             </View>
                             {/* NUEVO: Mostrar más información */}
-                            <Text style={componentStyles.cardSubtitle}>SKU: {product.sku}</Text>
-                            <Text style={componentStyles.cardSubtitle}>Precio: {formatPrice(Number(product.price))}</Text>
-                            <Text style={componentStyles.cardSubtitle}>Stock: {product.stockQuantity}</Text>
+                            <Text style={componentStyles.cardTitle}>SKU: {product.sku}</Text>
+                            <Text style={componentStyles.cardTitle}>Precio: {formatPrice(Number(product.price))}</Text>
+                            <Text style={componentStyles.cardTitle}>Stock: {product.stockQuantity}</Text>
                             {product.shortDescription ? (
-                                <Text style={componentStyles.cardSubtitle}>Resumen: {product.shortDescription}</Text>
+                                <Text style={componentStyles.cardTitle}>Resumen: {product.shortDescription}</Text>
                             ) : null}
-                            <Text style={componentStyles.cardSubtitle}>Categoría: {getCategoryName(product.categoryId)}</Text>
-                            <Text style={componentStyles.cardSubtitle}>Subcategoría: {getSubcategoryName(product.subcategoryId)}</Text>
+                            <Text style={componentStyles.cardTitle}>Categoría: {getCategoryName(product.categoryId)}</Text>
+                            <Text style={componentStyles.cardTitle}>Subcategoría: {getSubcategoryName(product.subcategoryId)}</Text>
                         </View>
                         {product.description && (
                             <Text style={[
@@ -471,8 +471,8 @@ const ProductsScreen: React.FC = () => {
                 {categories.length === 0 ? (
                     <View style={globalStyles.emptyStateContainer}>
                         <Text style={globalStyles.titleText}>Subcategorias</Text>
-                        <Text style={globalStyles.emptyTitleText}>No hay subcategorías disponibles.</Text>
-                        <Text style={globalStyles.emptySubtitleText}>
+                        <Text style={globalStyles.emptyStateText}>No hay subcategorías disponibles.</Text>
+                        <Text style={globalStyles.emptyStateText}>
                             {canEdit() ? 'Toca "Agregar" para crear una subcategoría.' : 'No se han creado subcategorías aún.'}
                         </Text>
                     </View>
@@ -497,7 +497,7 @@ const ProductsScreen: React.FC = () => {
                 }}>
                     <View style={[globalStyles.card, { width: '100%', maxWidth: 400 }]}> 
                         <View style={globalStyles.cardHeader}>
-                            <Text style={globalStyles.textTitle}>
+                            <Text style={globalStyles.headerTitle}>
                                 {editingProduct ? 'Editar Producto' : 'Nuevo Producto'}
                             </Text>
                             <TouchableOpacity 
@@ -511,7 +511,7 @@ const ProductsScreen: React.FC = () => {
                                 Nombre*
                             </Text>
                             <TextInput
-                                style={globalStyles.input}
+                                style={globalStyles.textInput}
                                 value={formData.name}
                                 onChangeText={(value) => setFormData({ ...formData, name: value })}
                                 placeholder="Nombre del producto"
@@ -539,7 +539,7 @@ const ProductsScreen: React.FC = () => {
                             <Picker
                                 selectedValue={formData.categoryId}
                                 onValueChange={(value) => setFormData({ ...formData, categoryId: value, subcategoryId: '' })}
-                                style={globalStyles.input}
+                                style={globalStyles.textInput}
                             >
                                 <Picker.Item label="Selecciona una categoría" value="" />
                                 {categories.map((cat) => (
@@ -554,7 +554,7 @@ const ProductsScreen: React.FC = () => {
                             <Picker
                                 selectedValue={formData.subcategoryId}
                                 onValueChange={(value) => setFormData({ ...formData, subcategoryId: value })}
-                                style={globalStyles.input}
+                                style={globalStyles.textInput}
                                 enabled={!!formData.categoryId}
                             >
                                 <Picker.Item label="Selecciona una subcategoría" value="" />
@@ -574,7 +574,7 @@ const ProductsScreen: React.FC = () => {
                                 <Text style={globalStyles.secondaryButtonText}>Cancelar</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
-                                style={[globalStyles.secondaryButtonText, { marginLeft: 8 }]}
+                                style={[globalStyles.secondaryButton, { marginLeft: 8 }]}
                                 onPress={handleSave}
                                 disabled={isLoading || !formData.name.trim() || !formData.categoryId}
                                 accessibilityLabel={editingProduct ? 'Editar producto' : 'Crear producto'}

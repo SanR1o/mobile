@@ -78,7 +78,7 @@ const LoginScreen: React.FC = () => {
                     <Text style={globalStyles.loginAppTitle}>Mi App</Text>
                     <Text style={globalStyles.loginSubtitle}>Login</Text>
                 </View>
-                <View style={globalStyles.loginInputContainer}>
+                <View style={globalStyles.inputContainer}>
                     <View style={globalStyles.inputContainer}>
                         <Text style={globalStyles.inputLabel}>Email o username</Text>
                         <TextInput
@@ -96,7 +96,7 @@ const LoginScreen: React.FC = () => {
                             <Text style={{ color: 'red', marginTop: 2 }}>{formError}</Text>
                         )}
                     </View>
-                    <View style={globalStyles.divider}>
+                    <View style={globalStyles.inputContainer}>
                         <Text style={globalStyles.inputLabel}>Contraseña</Text>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <TextInput
@@ -144,7 +144,7 @@ const LoginScreen: React.FC = () => {
                     )}
                 </TouchableOpacity>
                 <View style={globalStyles.loginInfoContainer}>
-                    <Text style={globalStyles.loginFooterText}>Usa las credenciales del sistema</Text>
+                    <Text style={globalStyles.loginLogoText}>Usa las credenciales del sistema</Text>
                     <Text style={globalStyles.loginDemoText}>
                         Admin: admin / admin123 {'\n'}
                         Coordinador: coordinador / coord123 {'\n'}

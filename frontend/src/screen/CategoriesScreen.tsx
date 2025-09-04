@@ -75,7 +75,7 @@ const CategoriesScreen: React.FC = () => {
         setEditingCategory(category);
         setFormData({ 
             name: category.name, 
-            description: category.description
+            description: category.description || ''
         });
         setIsModalVisible(true);
     }
@@ -94,12 +94,11 @@ const CategoriesScreen: React.FC = () => {
             Alert.alert("Error", "El nombre es obligatorio.");
             return;
         }
-
         try {
             setIsLoading(true);
             if (editingCategory) {
                 // Actualizar categoría existente
-                const response = await apiService.put(`/categories/${editingCategory.id}`, formData);
+                const response = await apiService.put(`/categories/${editingCategory._id}`, formData);
                 if (response.success) {
                     Alert.alert("Éxito", "Categoría actualizada.");
                     loadCategories();
@@ -140,7 +139,7 @@ const CategoriesScreen: React.FC = () => {
                     onPress: async () => {
                         try {
                             setIsLoading(true);
-                            const response = await apiService.delete(`/categories/${category.id}`);
+                            const response = await apiService.delete(`/categories/${category._id}`);
                             if (response.success) {
                                 Alert.alert("Éxito", "Categoría eliminada.");
                                 loadCategories();
@@ -175,7 +174,6 @@ const CategoriesScreen: React.FC = () => {
         const warningMessage = category.isActive
             ? 'Desactivar una categoría también desactivará todas sus subcategorías y productos asociados.'
             : 'Activar una categoría también activará todas sus subcategorías y productos asociados.';
-
         Alert.alert(
             `${action.charAt(0).toUpperCase() + action.slice(1)} Categoría`,
             `¿Estás seguro de que deseas ${action} la categoría "${category.name}"?\n\n${warningMessage}`,
@@ -187,7 +185,7 @@ const CategoriesScreen: React.FC = () => {
                     onPress: async () => {
                         try {
                             setIsLoading(true);
-                            const response = await apiService.patch(`/categories/${category.id}/toggle-status`, {});
+                            const response = await apiService.patch(`/categories/${category._id}/toggle-status`, {});
                             if (response.success) {
                                 Alert.alert("Éxito", "Estado de la categoría actualizado.");
                                 loadCategories();
@@ -207,38 +205,25 @@ const CategoriesScreen: React.FC = () => {
 
     const CategoryCard: React.FC<{ category: Category }> = ({ category }) => {
         return (
-            <View style={[
-                componentStyles.baseCard,
-                !category.isActive && componentStyles.cardInactive
-            ]}>
+            <View style={[componentStyles.baseCard, !category.isActive && componentStyles.cardInactive]}>
                 <View style={componentStyles.cardHeader}>
                     <View style={componentStyles.cardInfo}>
                         <View style={componentStyles.titleRow}>
-                            <Text style={[
-                                componentStyles.cardTitle,
-                                !category.isActive && componentStyles.cardInactive
-                            ]}>
+                            <Text style={[componentStyles.cardTitle, !category.isActive && componentStyles.cardInactive]}>
                                 {category.name}
                             </Text>
-                            <Text style={[
-                                componentStyles.statusBadge, category.isActive ? 
-                                componentStyles.statusBadgeActive : 
-                                componentStyles.statusBadgeInactive
-                            ]}>
+                            <Text style={[componentStyles.statusBadge, category.isActive ? componentStyles.statusBadgeActive : componentStyles.statusBadgeInactive]}>
                                 {category.isActive ? 'Activo' : 'Inactivo'}
                             </Text>
                         </View>
                     </View>
                     {category.description && (
-                        <Text style={[
-                            componentStyles.cardDescription,
-                            !category.isActive && componentStyles.cardDescriptionInactive
-                        ]}>
+                        <Text style={[componentStyles.cardDescription, !category.isActive && componentStyles.cardDescriptionInactive]}>
                             {category.description}
                         </Text>
                     )}
                     <Text style={componentStyles.cardDate}>
-                        Creado: {new Date(category.createdAt).toLocaleDateString()}
+                        Creado: {(category as any).createdAt ? new Date((category as any).createdAt).toLocaleDateString() : ''}
                     </Text>
                     <View style={componentStyles.cardActions}>
                         <TouchableOpacity
@@ -246,10 +231,7 @@ const CategoriesScreen: React.FC = () => {
                             onPress={() => handleToggleStatus(category)}
                             accessibilityLabel={category.isActive ? 'Desactivar categoría' : 'Activar categoría'}
                         >
-                            <Text style={[
-                                componentStyles.toggleButton,
-                                !category.isActive ? componentStyles.toggleButtonActive : componentStyles.toggleButtonInactive
-                            ]}>
+                            <Text style={[componentStyles.toggleButton, !category.isActive ? componentStyles.toggleButtonActive : componentStyles.toggleButtonInactive]}>
                                 {category.isActive ? 'Desactivar' : 'Activar'}
                             </Text>
                         </TouchableOpacity>
@@ -321,7 +303,7 @@ const CategoriesScreen: React.FC = () => {
                     </View>
                 ) : (
                     categories.map((category) => (
-                        <CategoryCard key={category.id} category={category} />
+                        <CategoryCard key={category._id} category={category} />
                     ))
                 )}
             </ScrollView>

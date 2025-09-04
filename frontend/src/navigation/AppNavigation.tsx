@@ -4,14 +4,14 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useAuth } from "../context/AuthContext";
-import { RootStackParamList, MainTabParamList } from "../types/navigation";
+import { RootStackParamList, MainTabParamList } from "../types";
 import { colors, spacing, typography } from "../styles";
 import LoginScreen from "../screen/LoginScreen";
 import LoadingScreen from "../screen/LoadingScreen";
 import HomeScreen from "../screen/HomeScreen";  
 import UserScreen from "../screen/UserScreen";
-import CategoryScreen from "../screen/CategoryScreen";
-import SubcategoryScreen from "../screen/SubcategoryScreen";
+import CategoryScreen from "../screen/CategoriesScreen";
+import SubcategoryScreen from "../screen/SubcategoriesScreen";
 import ProductScreen from "../screen/ProductScreen";
 import ProfileScreen from "../screen/ProfileScreen";
 
@@ -39,7 +39,7 @@ const MainTabNavigator: React.FC = () => {
             }}
         >
             <Tab.Screen
-                name="home"
+                name="Home"
                 component={HomeScreen}
                 options={{
                     title: 'Inicio',
@@ -53,7 +53,7 @@ const MainTabNavigator: React.FC = () => {
                 }}
             />
             <Tab.Screen
-                name="users"
+                name="Users"
                 component={UserScreen}
                 options={{
                     title: 'Usuarios',
@@ -67,7 +67,7 @@ const MainTabNavigator: React.FC = () => {
                 }}
             />
             <Tab.Screen
-                name="categories"
+                name="Category"
                 component={CategoryScreen}
                 options={{
                     title: 'Categorías',
@@ -81,7 +81,7 @@ const MainTabNavigator: React.FC = () => {
                 }}
             />
             <Tab.Screen
-                name="subcategories"
+                name="Subcategory"
                 component={SubcategoryScreen}
                 options={{
                     title: 'Subcategorias',
@@ -95,7 +95,7 @@ const MainTabNavigator: React.FC = () => {
                 }}
             />
             <Tab.Screen
-                name="products"
+                name="Products"
                 component={ProductScreen}
                 options={{
                     title: 'Productos',
@@ -109,7 +109,7 @@ const MainTabNavigator: React.FC = () => {
                 }}
             />
             <Tab.Screen
-                name="profile"
+                name="Profile"
                 component={ProfileScreen}
                 options={{
                     title: 'Perfil',

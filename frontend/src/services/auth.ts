@@ -14,7 +14,7 @@ class AuthService {
             //verificar respuesta
             if (response.success && response.data) {
                 const { token, user } = response.data;
-                await AsyncStorage.setItem(this.TOKEN_KEY, response.data, token);
+                await AsyncStorage.setItem(this.TOKEN_KEY, token);
                 await AsyncStorage.setItem(this.USER_KEY, JSON.stringify(user));
 
                 return {
@@ -27,11 +27,11 @@ class AuthService {
             }
             
         } catch (error: any) {
-            throw {
+            return {
                 success: false,
                 message: error.message || 'Error de conexión con el servidor',
-                data: null
-            } as LoginResponse;
+                data: { user: {} as User, token: '', expiresIn: '' }
+            };
         }
     }
 
@@ -89,4 +89,49 @@ class AuthService {
         }
     }
 
+    //cambiar contraseña
+    async changePassword(data: ChangePasswordData): Promise<ApiResponse<null>> {
+        try {
+            const response = await apiService.post<null>('/auth/change-password', data);
+            return response;
+        } catch (error: any) {
+            throw new Error(error.message || 'Error tratando de cambiar la contraseña')
+        }
+    }
+
+    //verificar token en el servidor
+    async verifyToken(): Promise<boolean> {
+            try {
+                const response = await apiService.get<null>('/auth/verify-token');
+                return !!response.success;
+            } catch(error) {
+                return false;
+            }
+        }
+
+    //limpiar datos de autenticacion
+    async clearAuthData(): Promise<void> {
+        await AsyncStorage.multiRemove([this.TOKEN_KEY, this.USER_KEY]);
+    }
+
+    //verificar si tiene un rol
+    async hasRole(role: 'admin' | 'coordinador'): Promise<boolean> {
+        const user = await this.getUser();
+        return user?.role === role
+    }
+
+    // verificar si el usuario puede eliminar
+    async canDelete(): Promise<boolean> {
+        return this.hasRole('admin');
+    }
+
+    // verificar si el usuario puede eliminar
+    async canEdit(): Promise<boolean> {
+        const user = await this.getUser(); 
+        return user?.role === 'admin' || user?.role === 'coordinador'
+    }
 }
+
+
+export const authService = new AuthService();
+export default AuthService;

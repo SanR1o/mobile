@@ -2,17 +2,9 @@ import React from "react";
 import { 
     View,
     Text,
-    TextInput,
-    ScrollView,
-    TouchableOpacity,
-    RefreshControl,
-    Alert,
-    StyleSheet,
-    KeyboardAvoidingView,
-    Platform,
     ActivityIndicator
 } from "react-native";
-import { globalStyles, componentStyles, colors, spacing } from "../styles"
+import { globalStyles, colors } from "../styles"
 
 const LoadingScreen: React.FC = () => {
     return (

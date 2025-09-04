@@ -79,8 +79,8 @@ const SubcategoriesScreen: React.FC = () => {
         setEditingSubcategory(subcategory);
         setFormData({
             name: subcategory.name,
-            description: subcategory.description,
-            categoryId: typeof subcategory.categoryId === 'object' ? subcategory.categoryId : subcategory.category,
+            description: subcategory.description || '',
+            categoryId: typeof subcategory.categoryId === 'object' ? subcategory.categoryId._id : subcategory.categoryId,
         });
         setIsModalVisible(true);
     };
@@ -100,7 +100,7 @@ const SubcategoriesScreen: React.FC = () => {
             setIsLoading(true);
             let response;
             if (editingSubcategory) {
-                response = await apiService.put(`/subcategories/${editingSubcategory.id}`, formData);
+                response = await apiService.put(`/subcategories/${editingSubcategory._id}`, formData);
             } else {
                 response = await apiService.post('/subcategories', formData);
             }
@@ -129,7 +129,7 @@ const SubcategoriesScreen: React.FC = () => {
                     onPress: async () => {
                         try {
                             setIsLoading(true);
-                            const response = await apiService.delete(`/subcategories/${subcategory.id}`);
+                            const response = await apiService.delete(`/subcategories/${subcategory._id}`);
                             if (response.success) {
                                 Alert.alert('Éxito', 'Subcategoría eliminada.');
                                 loadData();
@@ -162,7 +162,6 @@ const SubcategoriesScreen: React.FC = () => {
         const warningMessage = subcategory.isActive
             ? 'Desactivar una subcategoría también desactivará todos sus productos asociados.'
             : 'Activar una subcategoría también activará todos sus productos asociados.';
-
         Alert.alert(
             `${action.charAt(0).toUpperCase() + action.slice(1)} Subcategoría`,
             `¿Estás seguro de que deseas ${action} la subcategoría "${subcategory.name}"?\n\n${warningMessage}`,
@@ -174,7 +173,7 @@ const SubcategoriesScreen: React.FC = () => {
                     onPress: async () => {
                         try {
                             setIsLoading(true);
-                            const response = await apiService.patch(`/subcategories/${subcategory.id}/toggle-status`, {});
+                            const response = await apiService.patch(`/subcategories/${subcategory._id}/toggle-status`, {});
                             if (response.success) {
                                 Alert.alert('Éxito', 'Estado de la subcategoría actualizado.');
                                 loadData();
@@ -192,8 +191,9 @@ const SubcategoriesScreen: React.FC = () => {
         );
     };
 
-    const getCategoryName = (categoryId: string) => {
-        const category = categories.find(cat => cat.id === categoryId);
+    const getCategoryName = (categoryId: string | Category) => {
+        const id = typeof categoryId === 'object' ? categoryId._id : categoryId;
+        const category = categories.find(cat => cat._id === id);
         return category ? category.name : 'Sin categoría';
     }
 
@@ -201,84 +201,68 @@ const SubcategoriesScreen: React.FC = () => {
     const SubcategoryCard: React.FC<{ subcategory: Subcategory }> = ({ subcategory }) => {
         const categoryName = getCategoryName(subcategory.categoryId);
         return (
-                <View style={[
-                    componentStyles.baseCard,
-                    !subcategory.isActive && componentStyles.cardInactive
-                ]}>
-                    <View style={componentStyles.cardHeader}>
-                        <View style={componentStyles.cardInfo}>
-                            <View style={componentStyles.titleRow}>
-                                <Text style={[
-                                    componentStyles.cardTitle,
-                                    !subcategory.isActive && componentStyles.cardInactive
-                                ]}>
-                                    {subcategory.name}
-                                </Text>
-                                <Text style={[
-                                    componentStyles.statusBadge, subcategory.isActive ? 
-                                    componentStyles.statusBadgeActive : 
-                                    componentStyles.statusBadgeInactive
-                                ]}>
-                                    {subcategory.isActive ? 'Activo' : 'Inactivo'}
-                                </Text>
-                            </View>
-                        </View>
-                        {subcategory.description && (
-                            <Text style={[
-                                componentStyles.cardDescription,
-                                !subcategory.isActive && componentStyles.cardDescriptionInactive
-                            ]}>
-                                {subcategory.description}
+            <View style={[componentStyles.baseCard, !subcategory.isActive && componentStyles.cardInactive]}>
+                <View style={componentStyles.cardHeader}>
+                    <View style={componentStyles.cardInfo}>
+                        <View style={componentStyles.titleRow}>
+                            <Text style={[componentStyles.cardTitle, !subcategory.isActive && componentStyles.cardInactive]}>
+                                {subcategory.name}
                             </Text>
-                        )}
-                        <Text style={componentStyles.cardDate}>
-                            Creado: {new Date(subcategory.createdAt).toLocaleDateString()}
-                        </Text>
-                        <View style={componentStyles.cardActions}>
-                            <TouchableOpacity
-                                style={componentStyles.actionButton}
-                                onPress={() => handleToggleStatus(subcategory)}
-                                accessibilityLabel={subcategory.isActive ? 'Desactivar subcategoría' : 'Activar subcategoría'}
-                            >
-                                <Text style={[
-                                    componentStyles.toggleButton,
-                                    !subcategory.isActive ? componentStyles.toggleButtonActive : componentStyles.toggleButtonInactive
-                                ]}>
-                                    {subcategory.isActive ? 'Desactivar' : 'Activar'}
-                                </Text>
-                            </TouchableOpacity>
-                            {canEdit() && (
-                                <TouchableOpacity
-                                    style={[componentStyles.actionButton, componentStyles.editButton, { marginLeft: 8 }]}
-                                    onPress={() => openEditModal(subcategory)}
-                                    accessibilityLabel="Editar subcategoría"
-                                >
-                                    <Ionicons name="create" size={18} color="white" />
-                                </TouchableOpacity>
-                            )}
-                            {canDelete() && (
-                                <TouchableOpacity
-                                    style={[componentStyles.actionButton, componentStyles.deleteButton, { marginLeft: 8 }]}
-                                    onPress={() => handleDelete(subcategory)}
-                                    accessibilityLabel="Eliminar subcategoría"
-                                >
-                                    <Ionicons name="trash" size={18} color="white" />
-                                </TouchableOpacity>
-                            )}
+                            <Text style={[componentStyles.statusBadge, subcategory.isActive ? componentStyles.statusBadgeActive : componentStyles.statusBadgeInactive]}>
+                                {subcategory.isActive ? 'Activo' : 'Inactivo'}
+                            </Text>
                         </View>
                     </View>
+                    {subcategory.description && (
+                        <Text style={[componentStyles.cardDescription, !subcategory.isActive && componentStyles.cardDescriptionInactive]}>
+                            {subcategory.description}
+                        </Text>
+                    )}
+                    <Text style={componentStyles.cardDate}>
+                        Creado: {(subcategory as any).createdAt ? new Date((subcategory as any).createdAt).toLocaleDateString() : ''}
+                    </Text>
+                    <View style={componentStyles.cardActions}>
+                        <TouchableOpacity
+                            style={componentStyles.actionButton}
+                            onPress={() => handleToggleStatus(subcategory)}
+                            accessibilityLabel={subcategory.isActive ? 'Desactivar subcategoría' : 'Activar subcategoría'}
+                        >
+                            <Text style={[componentStyles.toggleButton, !subcategory.isActive ? componentStyles.toggleButtonActive : componentStyles.toggleButtonInactive]}>
+                                {subcategory.isActive ? 'Desactivar' : 'Activar'}
+                            </Text>
+                        </TouchableOpacity>
+                        {canEdit() && (
+                            <TouchableOpacity
+                                style={[componentStyles.actionButton, componentStyles.editButton, { marginLeft: 8 }]}
+                                onPress={() => openEditModal(subcategory)}
+                                accessibilityLabel="Editar subcategoría"
+                            >
+                                <Ionicons name="create" size={18} color="white" />
+                            </TouchableOpacity>
+                        )}
+                        {canDelete() && (
+                            <TouchableOpacity
+                                style={[componentStyles.actionButton, componentStyles.deleteButton, { marginLeft: 8 }]}
+                                onPress={() => handleDelete(subcategory)}
+                                accessibilityLabel="Eliminar subcategoría"
+                            >
+                                <Ionicons name="trash" size={18} color="white" />
+                            </TouchableOpacity>
+                        )}
+                    </View>
                 </View>
-            );
-        };
+            </View>
+        );
+    };
     
-        if (isLoading || isRefreshing) {
-            return (
-                <View style={globalStyles.loadingContainer}>
-                    <ActivityIndicator size="large" color="#4ECDC4" />
-                    <Text style={globalStyles.loadingText}>Cargando subcategorías...</Text>
-                </View>
-            );
-        }
+    if (isLoading || isRefreshing) {
+        return (
+            <View style={globalStyles.loadingContainer}>
+                <ActivityIndicator size="large" color="#4ECDC4" />
+                <Text style={globalStyles.loadingText}>Cargando subcategorías...</Text>
+            </View>
+        );
+    }
         
     return (
         <View style={globalStyles.screenContainer}>
@@ -315,7 +299,7 @@ const SubcategoriesScreen: React.FC = () => {
                     </View>
                 ) : (
                     subcategories.map((subcategory) => (
-                        <SubcategoryCard key={subcategory.id} subcategory={subcategory} />
+                        <SubcategoryCard key={subcategory._id} subcategory={subcategory} />
                     ))
                 )}
             </ScrollView>
@@ -380,7 +364,7 @@ const SubcategoriesScreen: React.FC = () => {
                             >
                                 <Picker.Item label="Selecciona una categoría" value="" />
                                 {categories.map((cat) => (
-                                    <Picker.Item key={cat.id} label={cat.name} value={cat.id} />
+                                    <Picker.Item key={cat._id} label={cat.name} value={cat._id} />
                                 ))}
                             </Picker>
                         </View>

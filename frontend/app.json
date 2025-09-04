@@ -1,0 +1,23 @@
+{
+    "expo":{
+        "name": "Gestion de Productos",
+        "slug": "Gestion-productos",
+        "version": "1.0.0",
+        "orientation": "portrait",
+        "userInterfaceStyle": "light",
+        "assetBundlePatterns": [
+            "**/**"
+        ],
+        "ios" : {
+            "supportsTablet": true
+        },
+        "android" : {
+            "adaptativeIcon" :{ 
+                "backgroundColor": "#fffff"
+            }
+        },
+        "web" : {
+            "favicon": "./assets/favicon.png"
+        }
+    }
+}

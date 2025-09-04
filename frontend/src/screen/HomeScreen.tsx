@@ -9,9 +9,6 @@ import {
     StyleSheet
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useAuth } from "../context/AuthContext";
 import { useNavigation } from "@react-navigation/native";
 import { apiService } from '../services/api';
@@ -110,7 +107,7 @@ const HomeScreen: React.FC = () => {
         iconName: string;
     }> = ({ title, value, color, iconName }) => {
         return (
-            <View style={[componentStyles.homeCard, { borderLeftColor: color, borderLeftWidth: 4 }]}>
+            <View style={[componentStyles.baseCard, { borderLeftColor: color, borderLeftWidth: 4 }]}>
                 <View style={globalStyles.homeCardHeader}>
                     <Ionicons name={iconName as any} size={24} color={color} 
                     style={globalStyles.homeCardIcon} />
@@ -128,9 +125,9 @@ const HomeScreen: React.FC = () => {
         color: string;
     }> = ({ title, iconName, onPress, color }) => {
         return (
-            <TouchableOpacity style={globalStyles.quickActionButton} onPress={onPress}>
-                <Ionicons name={iconName as any} size={20} color={color} style={globalStyles.homeActionButtonIcon} />
-                <Text style={[globalStyles.homeActionButtonText, { color }]}>{title}</Text>
+            <TouchableOpacity style={globalStyles.homeActionButton} onPress={onPress}>
+                <Ionicons name={iconName as any} size={20} color={color} style={globalStyles.homeActionButton} />
+                <Text style={[globalStyles.homeActionButton, { color }]}>{title}</Text>
             </TouchableOpacity>
         );
     };
@@ -161,7 +158,7 @@ const HomeScreen: React.FC = () => {
                 </TouchableOpacity>
             </View>
             {/*Estadisticas*/}
-            <View style={globalStyles.homeStatsContainer}>
+            <View style={globalStyles.screenContainer}>
                 <View style={{
                     flexDirection: 'row',
                     alignItems: 'center',
@@ -187,7 +184,7 @@ const HomeScreen: React.FC = () => {
                 <StatCard
                     title="Subcategorías"
                     value={stats.totalSubcategories}
-                    color={colors.Coordinador}
+                    color={colors.coordinator}
                     iconName="albums"
                 />
                 <StatCard
@@ -198,7 +195,7 @@ const HomeScreen: React.FC = () => {
                 />
             </View>
             <View style={globalStyles.homeSection}>
-                <View style={globalStyles.homeSectionHeader}>
+                <View style={globalStyles.screenHeader}>
                     <Ionicons name="flash" size={24} color={colors.primary} style={{ marginRight: spacing.md }} />
                     <Text style={globalStyles.homeSectionTitle}>Acciones Rápidas</Text>
                     <View style={globalStyles.homeGrid}>
@@ -220,7 +217,7 @@ const HomeScreen: React.FC = () => {
                             iconName="albums"
                             onPress={() => navigation.navigate('SubcategoryManagement' as never)} 
                             title="Gestion de subcategorias"
-                            color={colors.Coordinador}
+                            color={colors.coordinator}
                         />
                         <QuickAction
                             iconName="cube"
@@ -234,8 +231,8 @@ const HomeScreen: React.FC = () => {
                         <Ionicons name="information-circle" size={24} color={colors.primary} style={{ marginRight: spacing.md }} />
                         <Text style={globalStyles.homeSectionTitle}>Información del Sistema</Text>
                     </View>
-                    <View style={[StyleSheet.flatten([componentStyles.infoCard, {borderLeftColor: colors.primary, borderLeftWidth: 4}])]}>
-                        <Text style={componentStyles.infoText}>Versión de la App: 1.0.0</Text>
+                    <View style={[StyleSheet.flatten([componentStyles.baseCard, {borderLeftColor: colors.primary, borderLeftWidth: 4}])]}>
+                        <Text style={componentStyles.cardDescription}>Versión de la App: 1.0.0</Text>
                     </View>
                 </View>
             </View>

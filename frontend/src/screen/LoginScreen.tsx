@@ -24,29 +24,29 @@ import { globalStyles, componentStyles, colors, spacing } from "../styles"
 
 const LoginScreen: React.FC = () => {
     const { login, isLoading } = useAuth();
-    const [credentials, setCredentials] = useState<LoginCredentials>({ email: '', password: '' });
+    const [credentials, setCredentials] = useState<LoginCredentials>({ email: '', username: '', password: '' });
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const [formError, setFormError] = useState<string | null>(null);
 
     const handleInputChange = (field: keyof LoginCredentials, value: string) => {
         setCredentials(prev => ({
-            ...prev, 
-            [field]: field === 'email' ? value.trim() : value // solo trim en email
+            ...prev,
+            [field]: value.trim()
         }));
         setFormError(null);
     };
 
     //validar formulario
     const validateForm = (): boolean => {
-        if (!credentials.email || !credentials.password) {
+        if (!credentials.email && !credentials.username || !credentials.password) {
             setFormError('Por favor, complete todos los campos.');
             return false;
         }
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        const isEmail = emailRegex.test(credentials.email) && credentials.email.includes('@');
-        const isUsername = credentials.email && !emailRegex.test(credentials.email);
+        const isEmail = credentials.email && emailRegex.test(credentials.email);
+        const isUsername = credentials.username && !emailRegex.test(credentials.username);
         if (!isEmail && !isUsername) {
-            setFormError('Por favor, ingrese un correo electrónico válido.');
+            setFormError('Por favor, ingrese un correo electrónico o usuario válido.');
             return false;
         }
         setFormError(null);
@@ -57,11 +57,13 @@ const LoginScreen: React.FC = () => {
         if (!validateForm()) return;
         try {
             const response = await login(credentials);
-            if (response) {
+            if (response && typeof response === 'object' && 'message' in response) {
                 setFormError(null);
                 Alert.alert('Éxito', 'Inicio de sesión exitoso');
+            } else if (response && typeof response === 'object') {
+                setFormError((response as any).message || 'Error de Login');
             } else {
-                setFormError(response.message || 'Error de Login');
+                setFormError('Error de Login');
             }
         } catch (error: any) {
             setFormError(error.message || 'No se pudo establecer conexión con el servidor.');
@@ -80,7 +82,7 @@ const LoginScreen: React.FC = () => {
                 </View>
                 <View style={globalStyles.inputContainer}>
                     <View style={globalStyles.inputContainer}>
-                        <Text style={globalStyles.inputLabel}>Email o username</Text>
+                        <Text style={globalStyles.inputLabel}>Email</Text>
                         <TextInput
                             style={globalStyles.textInput}
                             value={credentials.email}
@@ -90,13 +92,18 @@ const LoginScreen: React.FC = () => {
                             autoCorrect={false}
                             editable={!isLoading}
                             autoFocus
-                            accessibilityLabel="Campo de email o usuario"
+                            accessibilityLabel="Campo de email"
                         />
-                        {formError && !credentials.email && (
-                            <Text style={{ color: 'red', marginTop: 2 }}>{formError}</Text>
-                        )}
-                    </View>
-                    <View style={globalStyles.inputContainer}>
+                        <Text style={globalStyles.inputLabel}>Usuario</Text>
+                        <TextInput
+                            style={globalStyles.textInput}
+                            value={credentials.username}
+                            onChangeText={(value: string) => handleInputChange('username', value)}
+                            placeholderTextColor='#999'
+                            autoCorrect={false}
+                            editable={!isLoading}
+                            accessibilityLabel="Campo de usuario"
+                        />
                         <Text style={globalStyles.inputLabel}>Contraseña</Text>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <TextInput

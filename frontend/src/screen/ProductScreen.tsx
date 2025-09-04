@@ -37,8 +37,8 @@ const ProductsScreen: React.FC = () => {
         name: '',
         shortDescription: '',
         description: '',
-        categoryId: '',
-        subcategoryId: '',
+        category: '', // Cambiado de categoryId
+        subcategory: '', // Cambiado de subcategoryId
         slug: '',
         sku: '',
         price: '',
@@ -129,8 +129,8 @@ const ProductsScreen: React.FC = () => {
             name: '',
             shortDescription: '',
             description: '',
-            categoryId: '',
-            subcategoryId: '',
+            category: '',
+            subcategory: '',
             slug: '',
             sku: '',
             price: '',
@@ -153,20 +153,20 @@ const ProductsScreen: React.FC = () => {
             name: product.name,
             shortDescription: product.shortDescription || '',
             description: product.description || '',
-            categoryId: typeof product.categoryId === 'object' ? product.categoryId : product.category,
-            subcategoryId: typeof product.subcategoryId === 'object' ? product.subcategoryId : product.subcategory,
+            category: typeof product.categoryId === 'object' ? product.categoryId._id : product.categoryId,
+            subcategory: typeof product.subcategoryId === 'object' ? product.subcategoryId._id : product.subcategoryId,
             slug: product.slug || '',
             sku: product.sku,
             price: product.price.toString(),
-            comparePrice: product.comparePrice.toString() || '',
-            cost: product.cost.toString() || '',
-            stockQuantity: product.stockQuantity.toString(),
-            minStock: product.minStock.toString(),
-            stock: product.stock.toString(),
-            weight: product.weight?.toString(),
-            length: product.length?.toString(),
-            width: product.width?.toString(),
-            height: product.height?.toString(),
+            comparePrice: product.comparePrice?.toString() || '',
+            cost: product.cost?.toString() || '',
+            stockQuantity: product.stock?.quantity?.toString() || '',
+            minStock: product.stock?.minStock?.toString() || '',
+            stock: product.stock?.trackStock?.toString() || '',
+            weight: product.dimensions?.weight?.toString() || '',
+            length: product.dimensions?.length?.toString() || '',
+            width: product.dimensions?.width?.toString() || '',
+            height: product.dimensions?.height?.toString() || '',
         });
         setIsModalVisible(true);
     };
@@ -178,8 +178,8 @@ const ProductsScreen: React.FC = () => {
             name: '',
             shortDescription: '',
             description: '',
-            categoryId: '',
-            subcategoryId: '',
+            category: '',
+            subcategory: '',
             slug: '',
             sku: '',
             price: '',
@@ -200,11 +200,11 @@ const ProductsScreen: React.FC = () => {
             Alert.alert('Error', 'El nombre es obligatorio.');
             return false;
         }
-        if (!formData.categoryId) {
+        if (!formData.category) {
             Alert.alert('Error', 'La categoría es obligatoria.');
             return false;
         }
-        if (!formData.subcategoryId) {
+        if (!formData.subcategory) {
             Alert.alert('Error', 'La subcategoría es obligatoria.');
             return false;
         }
@@ -221,15 +221,14 @@ const ProductsScreen: React.FC = () => {
 
     const handleSave = async () => {
         if (!validateForm()) return;
-
         try {
             setIsLoading(true);
             const ProductData = {
                 name: formData.name.trim(),
                 shortDescription: formData.shortDescription.trim(),
                 description: formData.description.trim(),
-                categoryId: formData.categoryId,
-                subcategoryId: formData.subcategoryId,
+                categoryId: formData.category,
+                subcategoryId: formData.subcategory,
                 slug: formData.slug.trim(),
                 sku: formData.sku.trim(),
                 price: Number(formData.price),
@@ -247,10 +246,9 @@ const ProductsScreen: React.FC = () => {
                     height: formData.height ? Number(formData.height) : undefined,
                 }
             };
-
         if (editingProduct) {
             // Editar producto
-            const response = await apiService.put(`/products/${editingProduct.id}`, ProductData);
+            const response = await apiService.put(`/products/${editingProduct._id}`, ProductData);
             if (response.success) {
                 Alert.alert('Éxito', 'Producto actualizado.');
                 closeModal();
@@ -274,9 +272,9 @@ const ProductsScreen: React.FC = () => {
     } finally {
         setIsLoading(false);
         closeModal();
-            loadProducts();
-        }
-    };
+        loadProducts();
+    }
+};
 
     const handleDelete = async (product: Product) => {
         Alert.alert(
@@ -289,7 +287,7 @@ const ProductsScreen: React.FC = () => {
                     onPress: async () => {
                         try {
                             setIsLoading(true);
-                            const response = await apiService.delete(`/products/${product.id}`);
+                            const response = await apiService.delete(`/products/${product._id}`);
                             if (response.success) {
                                 Alert.alert('Éxito', 'Producto eliminado.');
                                 loadProducts();
@@ -322,7 +320,7 @@ const ProductsScreen: React.FC = () => {
                     onPress: async () => {
                         try {
                             setIsLoading(true);
-                            const response = await apiService.patch(`/products/${product.id}/toggle-status`, {});
+                            const response = await apiService.patch(`/products/${product._id}/toggle-status`, {});
                             if (response.success) {
                                 Alert.alert('Éxito', 'Estado del producto actualizado.');
                                 loadProducts();
@@ -341,98 +339,81 @@ const ProductsScreen: React.FC = () => {
     };
 
     const getCategoryName = (categoryId: string) => {
-        const category = categories.find(cat => cat.id === categoryId);
+        const category = categories.find(cat => cat._id === categoryId);
         return category ? category.name : 'Sin categoría';
     }
 
     const getSubcategoryName = (subcategoryId: string) => {
-        const subcategory = subcategories.find(sub => sub.id === subcategoryId);
+        const subcategory = subcategories.find(sub => sub._id === subcategoryId);
         return subcategory ? subcategory.name : 'Sin subcategoría';
     }
 
     // Renderizar cada producto
     const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
-        const categoryName = getCategoryName(product.categoryId);
-        const subcategoryName = getSubcategoryName(product.subcategoryId);
+        const categoryName = getCategoryName(typeof product.categoryId === 'object' ? product.categoryId._id : product.categoryId);
+        const subcategoryName = getSubcategoryName(typeof product.subcategoryId === 'object' ? product.subcategoryId._id : product.subcategoryId);
         return (
-                <View style={[
-                    componentStyles.baseCard,
-                    !product.isActive && componentStyles.cardInactive
-                ]}>
-                    <View style={componentStyles.cardHeader}>
-                        <View style={componentStyles.cardInfo}>
-                            <View style={componentStyles.titleRow}>
-                                <Text style={[
-                                    componentStyles.cardTitle,
-                                    !product.isActive && componentStyles.cardInactive
-                                ]}>
-                                    {product.name}
-                                </Text>
-                                <Text style={[
-                                    componentStyles.statusBadge, product.isActive ? 
-                                    componentStyles.statusBadgeActive : 
-                                    componentStyles.statusBadgeInactive
-                                ]}>
-                                    {product.isActive ? 'Activo' : 'Inactivo'}
-                                </Text>
-                            </View>
-                            {/* NUEVO: Mostrar más información */}
-                            <Text style={componentStyles.cardTitle}>SKU: {product.sku}</Text>
-                            <Text style={componentStyles.cardTitle}>Precio: {formatPrice(Number(product.price))}</Text>
-                            <Text style={componentStyles.cardTitle}>Stock: {product.stockQuantity}</Text>
-                            {product.shortDescription ? (
-                                <Text style={componentStyles.cardTitle}>Resumen: {product.shortDescription}</Text>
-                            ) : null}
-                            <Text style={componentStyles.cardTitle}>Categoría: {getCategoryName(product.categoryId)}</Text>
-                            <Text style={componentStyles.cardTitle}>Subcategoría: {getSubcategoryName(product.subcategoryId)}</Text>
-                        </View>
-                        {product.description && (
-                            <Text style={[
-                                componentStyles.cardDescription,
-                                !product.isActive && componentStyles.cardDescriptionInactive
-                            ]}>
-                                {product.description}
+            <View style={[componentStyles.baseCard, !product.isActive && componentStyles.cardInactive]}>
+                <View style={componentStyles.cardHeader}>
+                    <View style={componentStyles.cardInfo}>
+                        <View style={componentStyles.titleRow}>
+                            <Text style={[componentStyles.cardTitle, !product.isActive && componentStyles.cardInactive]}>
+                                {product.name}
                             </Text>
-                        )}
-                        <Text style={componentStyles.cardDate}>
-                            Creado: {new Date(product.createdAt).toLocaleDateString()}
-                        </Text>
-                        <View style={componentStyles.cardActions}>
-                            <TouchableOpacity
-                                style={componentStyles.actionButton}
-                                onPress={() => handleToggleStatus(product)}
-                                accessibilityLabel={product.isActive ? 'Desactivar producto' : 'Activar producto'}
-                            >
-                                <Text style={[
-                                    componentStyles.toggleButton,
-                                    !product.isActive ? componentStyles.toggleButtonActive : componentStyles.toggleButtonInactive
-                                ]}>
-                                    {product.isActive ? 'Desactivar' : 'Activar'}
-                                </Text>
-                            </TouchableOpacity>
-                            {canEdit() && (
-                                <TouchableOpacity
-                                    style={[componentStyles.actionButton, componentStyles.editButton, { marginLeft: 8 }]}
-                                    onPress={() => openEditModal(product)}
-                                    accessibilityLabel="Editar producto"
-                                >
-                                    <Ionicons name="create" size={18} color="white" />
-                                </TouchableOpacity>
-                            )}
-                            {canDelete() && (
-                                <TouchableOpacity
-                                    style={[componentStyles.actionButton, componentStyles.deleteButton, { marginLeft: 8 }]}
-                                    onPress={() => handleDelete(product)}
-                                    accessibilityLabel="Eliminar producto"
-                                >
-                                    <Ionicons name="trash" size={18} color="white" />
-                                </TouchableOpacity>
-                            )}
+                            <Text style={[componentStyles.statusBadge, product.isActive ? componentStyles.statusBadgeActive : componentStyles.statusBadgeInactive]}>
+                                {product.isActive ? 'Activo' : 'Inactivo'}
+                            </Text>
                         </View>
+                        <Text style={componentStyles.cardTitle}>SKU: {product.sku}</Text>
+                        <Text style={componentStyles.cardTitle}>Precio: {formatPrice(Number(product.price))}</Text>
+                        <Text style={componentStyles.cardTitle}>Stock: {product.stock?.quantity}</Text>
+                        {product.shortDescription ? (
+                            <Text style={componentStyles.cardTitle}>Resumen: {product.shortDescription}</Text>
+                        ) : null}
+                        <Text style={componentStyles.cardTitle}>Categoría: {categoryName}</Text>
+                        <Text style={componentStyles.cardTitle}>Subcategoría: {subcategoryName}</Text>
+                    </View>
+                    {product.description && (
+                        <Text style={[componentStyles.cardDescription, !product.isActive && componentStyles.cardDescriptionInactive]}>
+                            {product.description}
+                        </Text>
+                    )}
+                    <Text style={componentStyles.cardDate}>
+                        Creado: {product.createdAt ? new Date(product.createdAt).toLocaleDateString() : ''}
+                    </Text>
+                    <View style={componentStyles.cardActions}>
+                        <TouchableOpacity
+                            style={componentStyles.actionButton}
+                            onPress={() => handleToggleStatus(product)}
+                            accessibilityLabel={product.isActive ? 'Desactivar producto' : 'Activar producto'}
+                        >
+                            <Text style={[componentStyles.toggleButton, !product.isActive ? componentStyles.toggleButtonActive : componentStyles.toggleButtonInactive]}>
+                                {product.isActive ? 'Desactivar' : 'Activar'}
+                            </Text>
+                        </TouchableOpacity>
+                        {canEdit() && (
+                            <TouchableOpacity
+                                style={[componentStyles.actionButton, componentStyles.editButton, { marginLeft: 8 }]}
+                                onPress={() => openEditModal(product)}
+                                accessibilityLabel="Editar producto"
+                            >
+                                <Ionicons name="create" size={18} color="white" />
+                            </TouchableOpacity>
+                        )}
+                        {canDelete() && (
+                            <TouchableOpacity
+                                style={[componentStyles.actionButton, componentStyles.deleteButton, { marginLeft: 8 }]}
+                                onPress={() => handleDelete(product)}
+                                accessibilityLabel="Eliminar producto"
+                            >
+                                <Ionicons name="trash" size={18} color="white" />
+                            </TouchableOpacity>
+                        )}
                     </View>
                 </View>
-            );
-        };
+            </View>
+        );
+    };
     
         if (isLoading || isRefreshing) {
             return (
@@ -478,7 +459,7 @@ const ProductsScreen: React.FC = () => {
                     </View>
                 ) : (
                     products.map((product) => (
-                        <ProductCard key={product.id} product={product} />
+                        <ProductCard key={product._id} product={product} />
                     ))
                 )}
             </ScrollView>
@@ -537,13 +518,13 @@ const ProductsScreen: React.FC = () => {
                                 Categoría
                             </Text>
                             <Picker
-                                selectedValue={formData.categoryId}
-                                onValueChange={(value) => setFormData({ ...formData, categoryId: value, subcategoryId: '' })}
+                                selectedValue={formData.category}
+                                onValueChange={(value) => setFormData({ ...formData, category: value, subcategory: '' })}
                                 style={globalStyles.textInput}
                             >
                                 <Picker.Item label="Selecciona una categoría" value="" />
                                 {categories.map((cat) => (
-                                    <Picker.Item key={cat.id} label={cat.name} value={cat.id} />
+                                    <Picker.Item key={cat._id} label={cat.name} value={cat._id} />
                                 ))}
                             </Picker>
                         </View>
@@ -552,16 +533,16 @@ const ProductsScreen: React.FC = () => {
                                 Subcategoría
                             </Text>
                             <Picker
-                                selectedValue={formData.subcategoryId}
-                                onValueChange={(value) => setFormData({ ...formData, subcategoryId: value })}
+                                selectedValue={formData.subcategory}
+                                onValueChange={(value) => setFormData({ ...formData, subcategory: value })}
                                 style={globalStyles.textInput}
-                                enabled={!!formData.categoryId}
+                                enabled={!!formData.category}
                             >
                                 <Picker.Item label="Selecciona una subcategoría" value="" />
                                 {subcategories
-                                    .filter(sub => sub.categoryId === formData.categoryId)
+                                    .filter(sub => sub.categoryId === formData.category)
                                     .map(sub => (
-                                        <Picker.Item key={sub.id} label={sub.name} value={sub.id} />
+                                        <Picker.Item key={sub._id} label={sub.name} value={sub._id} />
                                     ))}
                             </Picker>
                         </View>
@@ -576,7 +557,7 @@ const ProductsScreen: React.FC = () => {
                             <TouchableOpacity
                                 style={[globalStyles.secondaryButton, { marginLeft: 8 }]}
                                 onPress={handleSave}
-                                disabled={isLoading || !formData.name.trim() || !formData.categoryId}
+                                disabled={isLoading || !formData.name.trim() || !formData.category}
                                 accessibilityLabel={editingProduct ? 'Editar producto' : 'Crear producto'}
                             >
                                 {isLoading ? (

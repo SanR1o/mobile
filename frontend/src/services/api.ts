@@ -112,13 +112,11 @@ class ApiService {
 
     //metodo generico GET
     async get<T>(endpoint: string, config?: AxiosRequestConfig): 
-    Promise<ApiResponse<T>> {
+    Promise<any> {
         try {
             const response = await this.axiosInstance.get<T>(endpoint, config);
-            return {
-                data: response.data,
-                status: response.status,
-            };
+            // Retorna la respuesta del backend tal cual
+            return response.data;
         } catch (error: any) {
             throw this.handleError(error);
         }

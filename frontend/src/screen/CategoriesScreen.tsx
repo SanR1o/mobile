@@ -303,7 +303,7 @@ const CategoriesScreen: React.FC = () => {
                     </View>
                 ) : (
                     categories.map((category) => (
-                    <Text key={category._id}>{category.name}</Text>
+                        <CategoryCard key={category._id} category={category} />
                     ))
                 )}
             </ScrollView>

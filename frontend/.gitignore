@@ -1,2 +1,4 @@
 # Node modules (todas las dependencias)
 node_modules/
+
+.expo/

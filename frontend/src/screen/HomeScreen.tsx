@@ -19,10 +19,10 @@ interface DashboardStats {
     totalCategories: number;
     totalSubcategories: number;
     totalProducts: number;
-};
+}
 
 const HomeScreen: React.FC = () => {
-    const{ user, logout, hasRole }= useAuth();
+    const { user, logout, hasRole } = useAuth();
     const navigation = useNavigation();
 
     const [stats, setStats] = useState<DashboardStats>({
@@ -40,10 +40,10 @@ const HomeScreen: React.FC = () => {
     }, []);
 
     const loadDashboardData = async () => {
-        try{
+        try {
             const promises: Promise<any>[] = [];
 
-            if(hasRole('admin')){
+            if (hasRole('admin')) {
                 promises.push(apiService.get('/users'));
             }
 
@@ -57,8 +57,7 @@ const HomeScreen: React.FC = () => {
             let userCount = 0;
             let resultsIndex = 0;
 
-            //procesar resultado
-            if(hasRole('admin')) {
+            if (hasRole('admin')) {
                 const usersResponse = results[resultsIndex];
                 userCount = usersResponse.success && usersResponse.data && Array.isArray(usersResponse.data) ? usersResponse.data.length : 0;
                 resultsIndex++;
@@ -76,7 +75,7 @@ const HomeScreen: React.FC = () => {
                 totalSubcategories: subcategoriesResponse.success && subcategoriesResponse.data && Array.isArray(subcategoriesResponse.data) ? subcategoriesResponse.data.length : 0,
                 totalProducts: productsResponse.success && productsResponse.data && Array.isArray(productsResponse.data) ? productsResponse.data.length : 0,
             });
-        } catch(error) {
+        } catch (error) {
             console.error('Error loading dashboard data:', error);
         } finally {
             setIsLoading(false);
@@ -107,37 +106,40 @@ const HomeScreen: React.FC = () => {
         iconName: string;
     }> = ({ title, value, color, iconName }) => {
         return (
-            <View style={[componentStyles.baseCard, { borderLeftColor: color, borderLeftWidth: 4 }]}>
-                <View style={globalStyles.homeCardHeader}>
-                    <Ionicons name={iconName as any} size={24} color={color} 
-                    style={globalStyles.homeCardIcon} />
-                    <Text style={[globalStyles.homeCardTitle, { color }]}>{title}</Text>
+            <View style={[styles.statCard, { borderLeftColor: color }]}>
+                <View style={styles.statCardHeader}>
+                    <Ionicons name={iconName as any} size={24} color={color} />
+                    <Text style={[styles.statCardTitle, { color }]}>{title}</Text>
                 </View>
-                <Text style={[globalStyles.homeCardValue, { color }]}>{value}</Text>
+                <Text style={[styles.statCardValue, { color }]}>{value}</Text>
             </View>
         );
     };
 
-    const QuickAction : React.FC<{
+    const QuickAction: React.FC<{
         title: string;
         iconName: string;
         onPress: () => void;
         color: string;
     }> = ({ title, iconName, onPress, color }) => {
         return (
-            <TouchableOpacity style={globalStyles.homeActionButton} onPress={onPress}>
-                <Ionicons name={iconName as any} size={20} color={color} style={globalStyles.homeActionButton} />
-                <Text style={[globalStyles.homeActionButton, { color }]}>{title}</Text>
+            <TouchableOpacity style={styles.quickActionButton} onPress={onPress}>
+                <View style={[styles.quickActionIcon, { backgroundColor: color + '15' }]}>
+                    <Ionicons name={iconName as any} size={28} color={color} />
+                </View>
+                <Text style={[styles.quickActionTitle, { color }]}>{title}</Text>
             </TouchableOpacity>
         );
     };
-    if(isLoading){
+
+    if (isLoading) {
         return (
             <View style={[globalStyles.container, globalStyles.loadingContainer]}>
                 <Text style={globalStyles.loadingText}>Cargando datos...</Text>
             </View>
         );
-    };
+    }
+
     return (
         <ScrollView 
             style={globalStyles.container}
@@ -148,96 +150,270 @@ const HomeScreen: React.FC = () => {
                     colors={[colors.primary]}
                 />
             }
+            showsVerticalScrollIndicator={false}
         >
-            <View style={globalStyles.homeHeader}>
-                <Text style={globalStyles.userWelcomeText}>Bienvenido de nuevo</Text>
-                <Text style={globalStyles.userName}>{user?.email || 'Usuario'}</Text>
-                <Text style={globalStyles.userRole}>{user?.role === 'admin' ? 'Administrador' : 'Coordinador'}</Text>
-                <TouchableOpacity style={globalStyles.logoutButton} onPress={handleLogout}>
-                    <Text style={globalStyles.logoutButtonText}>Cerrar Sesión</Text>
+            {/* Header de Usuario */}
+            <View style={styles.userHeader}>
+                <View style={styles.userInfo}>
+                    <Text style={styles.welcomeText}>Bienvenido de nuevo</Text>
+                    <Text style={styles.userName}>{user?.email || 'Usuario'}</Text>
+                    <Text style={styles.userRole}>
+                        {user?.role === 'admin' ? 'Administrador' : 'Coordinador'}
+                    </Text>
+                </View>
+                <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+                    <Ionicons name="log-out-outline" size={20} color={colors.textLight} />
                 </TouchableOpacity>
             </View>
-            {/*Estadisticas*/}
-            <View style={globalStyles.screenContainer}>
-                <View style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    marginRight: spacing.md
-                }}></View>
-            </View>
-            <Ionicons name="stats-chart" size={32} color={colors.primary} style={{ alignSelf: 'center', marginBottom: spacing.sm }} />
-            <View style={globalStyles.homeGrid}>
-                {hasRole('admin') && (
-                    <StatCard 
-                        title="Usuarios"
-                        value={stats.totalUsers}
-                        color={colors.admin}
-                        iconName="people"
+
+            {/* Sección de Estadísticas */}
+            <View style={styles.section}>
+                <View style={styles.sectionHeader}>
+                    <Ionicons name="stats-chart" size={24} color={colors.primary} />
+                    <Text style={styles.sectionTitle}>Estadísticas</Text>
+                </View>
+                
+                <View style={styles.statsGrid}>
+                    {hasRole('admin') && (
+                        <StatCard 
+                            title="Usuarios"
+                            value={stats.totalUsers}
+                            color={colors.admin}
+                            iconName="people"
+                        />
+                    )}
+                    <StatCard
+                        title="Categorías"
+                        value={stats.totalCategories}
+                        color={colors.secondary}
+                        iconName="folder"
                     />
-                )}
-                <StatCard
-                    title="Categorías"
-                    value={stats.totalCategories}
-                    color={colors.secondary}
-                    iconName="folder"
-                />
-                <StatCard
-                    title="Subcategorías"
-                    value={stats.totalSubcategories}
-                    color={colors.coordinator}
-                    iconName="albums"
-                />
-                <StatCard
-                    title="Productos"
-                    value={stats.totalProducts}
-                    color={colors.accent}
-                    iconName="cube"
-                />
+                    <StatCard
+                        title="Subcategorías"
+                        value={stats.totalSubcategories}
+                        color={colors.coordinator}
+                        iconName="albums"
+                    />
+                    <StatCard
+                        title="Productos"
+                        value={stats.totalProducts}
+                        color={colors.accent}
+                        iconName="cube"
+                    />
+                </View>
             </View>
-            <View style={globalStyles.homeSection}>
-                <View style={globalStyles.screenHeader}>
-                    <Ionicons name="flash" size={24} color={colors.primary} style={{ marginRight: spacing.md }} />
-                    <Text style={globalStyles.homeSectionTitle}>Acciones Rápidas</Text>
-                    <View style={globalStyles.homeGrid}>
-                        {hasRole('admin') && (
-                            <QuickAction
-                                iconName="people"
-                                onPress={() => navigation.navigate('UserManagement' as never)} 
-                                title="Gestion de usuarios"
-                                color={colors.admin}
-                            />
-                        )}
+
+            {/* Sección de Acciones Rápidas */}
+            <View style={styles.section}>
+                <View style={styles.sectionHeader}>
+                    <Ionicons name="flash" size={24} color={colors.primary} />
+                    <Text style={styles.sectionTitle}>Acciones Rápidas</Text>
+                </View>
+                
+                <View style={styles.actionsGrid}>
+                    {hasRole('admin') && (
                         <QuickAction
-                            iconName="folder"
-                            onPress={() => navigation.navigate('CategoryManagement' as never)} 
-                            title="Gestion de categorias"
-                            color={colors.secondary}
+                            iconName="people"
+                            onPress={() => navigation.navigate('UserManagement' as never)}
+                            title="Usuarios"
+                            color={colors.admin}
                         />
-                        <QuickAction
-                            iconName="albums"
-                            onPress={() => navigation.navigate('SubcategoryManagement' as never)} 
-                            title="Gestion de subcategorias"
-                            color={colors.coordinator}
-                        />
-                        <QuickAction
-                            iconName="cube"
-                            onPress={() => navigation.navigate('ProductManagement' as never)} 
-                            title="Gestion de productos"
-                            color={colors.accent}
-                        />
-                    </View>
-                    {/*informacion del sistema*/}
-                    <View style={{flexDirection: 'row', alignItems: 'center', marginTop: spacing.md}}>
-                        <Ionicons name="information-circle" size={24} color={colors.primary} style={{ marginRight: spacing.md }} />
-                        <Text style={globalStyles.homeSectionTitle}>Información del Sistema</Text>
-                    </View>
-                    <View style={[StyleSheet.flatten([componentStyles.baseCard, {borderLeftColor: colors.primary, borderLeftWidth: 4}])]}>
-                        <Text style={componentStyles.cardDescription}>Versión de la App: 1.0.0</Text>
-                    </View>
+                    )}
+                    <QuickAction
+                        iconName="folder"
+                        onPress={() => navigation.navigate('CategoryManagement' as never)}
+                        title="Categorías"
+                        color={colors.secondary}
+                    />
+                    <QuickAction
+                        iconName="albums"
+                        onPress={() => navigation.navigate('SubcategoryManagement' as never)}
+                        title="Subcategorías"
+                        color={colors.coordinator}
+                    />
+                    <QuickAction
+                        iconName="cube"
+                        onPress={() => navigation.navigate('ProductManagement' as never)}
+                        title="Productos"
+                        color={colors.accent}
+                    />
+                </View>
+            </View>
+
+            {/* Información del Sistema */}
+            <View style={styles.section}>
+                <View style={styles.sectionHeader}>
+                    <Ionicons name="information-circle" size={24} color={colors.primary} />
+                    <Text style={styles.sectionTitle}>Información del Sistema</Text>
+                </View>
+                
+                <View style={styles.infoCard}>
+                    <Text style={styles.infoText}>Versión de la App: 1.0.0</Text>
+                    <Text style={styles.infoSubtext}>Sistema de gestión de inventario</Text>
                 </View>
             </View>
         </ScrollView>
     );
 };
+
+const styles = StyleSheet.create({
+    // Header de Usuario
+    userHeader: {
+        backgroundColor: colors.surface,
+        padding: spacing.xl,
+        marginBottom: spacing.lg,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        borderBottomWidth: 1,
+        borderBottomColor: colors.border,
+    },
+    userInfo: {
+        flex: 1,
+    },
+    welcomeText: {
+        fontSize: 14,
+        color: colors.textSecondary,
+        marginBottom: 4,
+    },
+    userName: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: colors.textPrimary,
+        marginBottom: 4,
+    },
+    userRole: {
+        fontSize: 14,
+        color: colors.primary,
+        fontWeight: '600',
+    },
+    logoutButton: {
+        backgroundColor: colors.error,
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.sm,
+        borderRadius: 8,
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+
+    // Secciones
+    section: {
+        marginBottom: spacing.xl,
+        paddingHorizontal: spacing.lg,
+    },
+    sectionHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: spacing.lg,
+    },
+    sectionTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: colors.textPrimary,
+        marginLeft: spacing.sm,
+    },
+
+    // Tarjetas de Estadísticas
+    statsGrid: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+        gap: spacing.md,
+    },
+    statCard: {
+        backgroundColor: colors.surface,
+        borderRadius: 12,
+        padding: spacing.lg,
+        minHeight: 100,
+        borderLeftWidth: 4,
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.22,
+        shadowRadius: 2.22,
+    },
+    statCardHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: spacing.sm,
+    },
+    statCardTitle: {
+        fontSize: 14,
+        fontWeight: '600',
+        marginLeft: spacing.xs,
+    },
+    statCardValue: {
+        fontSize: 32,
+        fontWeight: 'bold',
+        textAlign: 'center',
+    },
+
+    // Acciones Rápidas
+    actionsGrid: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+        gap: spacing.md,
+    },
+    quickActionButton: {
+        backgroundColor: colors.surface,
+        borderRadius: 12,
+        padding: spacing.lg,
+        alignItems: 'center',
+        width: '48%',
+        minHeight: 120,
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.22,
+        shadowRadius: 2.22,
+    },
+    quickActionIcon: {
+        width: 56,
+        height: 56,
+        borderRadius: 28,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: spacing.sm,
+    },
+    quickActionTitle: {
+        fontSize: 14,
+        fontWeight: '600',
+        textAlign: 'center',
+    },
+
+    // Información del Sistema
+    infoCard: {
+        backgroundColor: colors.surface,
+        borderRadius: 12,
+        padding: spacing.lg,
+        borderLeftWidth: 4,
+        borderLeftColor: colors.primary,
+        elevation: 1,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.18,
+        shadowRadius: 1.00,
+    },
+    infoText: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: colors.textPrimary,
+        marginBottom: 4,
+    },
+    infoSubtext: {
+        fontSize: 14,
+        color: colors.textSecondary,
+    },
+});
 
 export default HomeScreen;

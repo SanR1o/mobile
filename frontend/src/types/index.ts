@@ -1,4 +1,4 @@
-    export interface User {
+export interface User {
         _id: string;
         username: string;
         email: string;
@@ -13,7 +13,6 @@
 
     export interface LoginCredentials {
         email: string;
-        username: string;
         password: string;
     }
 

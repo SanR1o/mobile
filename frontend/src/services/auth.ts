@@ -10,27 +10,28 @@ class AuthService {
     async login(credentials: LoginCredentials): Promise<LoginResponse> {
         try {
             const response = await apiService.post<LoginResponse['data']>('/auth/login', credentials);
-
-            //verificar respuesta
+            // Retorna la respuesta tal cual la envía el backend
             if (response.success && response.data) {
                 const { token, user } = response.data;
                 await AsyncStorage.setItem(this.TOKEN_KEY, token);
                 await AsyncStorage.setItem(this.USER_KEY, JSON.stringify(user));
-
                 return {
                     success: true,
                     message: response.message || 'Login exitoso',
                     data: response.data
                 };
             } else {
-                throw new Error(response.message || 'Error de autenticación');
+                return {
+                    success: false,
+                    message: response.message || 'Error de autenticación',
+                    data: { user: undefined as any, token: '', expiresIn: '' }
+                };
             }
-            
         } catch (error: any) {
             return {
                 success: false,
                 message: error.message || 'Error de conexión con el servidor',
-                data: { user: {} as User, token: '', expiresIn: '' }
+                data: { user: undefined as any, token: '', expiresIn: '' }
             };
         }
     }

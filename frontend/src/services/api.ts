@@ -5,7 +5,7 @@ import  { ApiResponse } from '../types';
 
 class ApiService {
     private axiosInstance: AxiosInstance;
-    private baseURL: string = 'https://0.0.0.0:5000/api';
+    private baseURL: string = 'http://192.168.95.1:5000/api';
 
     constructor() {
         this.axiosInstance = axios.create({
@@ -126,13 +126,11 @@ class ApiService {
 
     //metodo generico POST
     async post<T>(endpoint: string, data?: any, config?: AxiosRequestConfig): 
-    Promise<ApiResponse<T>> {
+    Promise<any> {
         try {
             const response = await this.axiosInstance.post<T>(endpoint, data, config);
-            return {
-                data: response.data,
-                status: response.status,
-            };
+            // Retorna la respuesta del backend tal cual
+            return response.data;
         } catch (error: any) {
             throw this.handleError(error);
         }

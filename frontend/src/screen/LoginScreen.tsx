@@ -21,10 +21,15 @@ import { useNavigation } from "@react-navigation/native";
 import { apiService } from '../services/api';
 import { User, LoginCredentials, LoginResponse } from '../types';
 import { globalStyles, componentStyles, colors, spacing } from "../styles"
+import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import { MainTabParamList } from '../types';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../types';
 
 const LoginScreen: React.FC = () => {
-    const { login, isLoading } = useAuth();
-    const [credentials, setCredentials] = useState<LoginCredentials>({ email: '', username: '', password: '' });
+    const { login, isLoading, isAuthenticated } = useAuth();
+    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+    const [credentials, setCredentials] = useState<LoginCredentials>({ email: '', password: '' });
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const [formError, setFormError] = useState<string | null>(null);
 
@@ -38,15 +43,14 @@ const LoginScreen: React.FC = () => {
 
     //validar formulario
     const validateForm = (): boolean => {
-        if (!credentials.email && !credentials.username || !credentials.password) {
+        if (!credentials.email || !credentials.password) {
             setFormError('Por favor, complete todos los campos.');
             return false;
         }
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         const isEmail = credentials.email && emailRegex.test(credentials.email);
-        const isUsername = credentials.username && !emailRegex.test(credentials.username);
-        if (!isEmail && !isUsername) {
-            setFormError('Por favor, ingrese un correo electrónico o usuario válido.');
+        if (!isEmail) {
+            setFormError('Por favor, ingrese un correo electrónico válido.');
             return false;
         }
         setFormError(null);
@@ -59,7 +63,7 @@ const LoginScreen: React.FC = () => {
             const response = await login(credentials);
             if (response && typeof response === 'object' && 'message' in response) {
                 setFormError(null);
-                Alert.alert('Éxito', 'Inicio de sesión exitoso');
+                // Eliminado Alert para evitar bloqueo de render
             } else if (response && typeof response === 'object') {
                 setFormError((response as any).message || 'Error de Login');
             } else {
@@ -79,6 +83,10 @@ const LoginScreen: React.FC = () => {
                     <Text style={globalStyles.loginLogoText}>Logo</Text>
                     <Text style={globalStyles.loginAppTitle}>Mi App</Text>
                     <Text style={globalStyles.loginSubtitle}>Login</Text>
+                    {/* Log visual para depuración del estado de autenticación */}
+                    <Text style={{ color: isAuthenticated ? 'green' : 'red', fontWeight: 'bold', marginTop: 8 }}>
+                        Estado autenticado: {isAuthenticated ? 'Sí' : 'No'}
+                    </Text>
                 </View>
                 <View style={globalStyles.inputContainer}>
                     <View style={globalStyles.inputContainer}>
@@ -93,16 +101,6 @@ const LoginScreen: React.FC = () => {
                             editable={!isLoading}
                             autoFocus
                             accessibilityLabel="Campo de email"
-                        />
-                        <Text style={globalStyles.inputLabel}>Usuario</Text>
-                        <TextInput
-                            style={globalStyles.textInput}
-                            value={credentials.username}
-                            onChangeText={(value: string) => handleInputChange('username', value)}
-                            placeholderTextColor='#999'
-                            autoCorrect={false}
-                            editable={!isLoading}
-                            accessibilityLabel="Campo de usuario"
                         />
                         <Text style={globalStyles.inputLabel}>Contraseña</Text>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -151,7 +149,6 @@ const LoginScreen: React.FC = () => {
                     )}
                 </TouchableOpacity>
                 <View style={globalStyles.loginInfoContainer}>
-                    <Text style={globalStyles.loginLogoText}>Usa las credenciales del sistema</Text>
                     <Text style={globalStyles.loginDemoText}>
                         Admin: admin / admin123 {'\n'}
                         Coordinador: coordinador / coord123 {'\n'}

@@ -41,8 +41,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 const isValidToken = await authService.verifyToken();
 
                 if (isValidToken) {
-                    const userData = await authService.getCurrentUser();
+                    const userData = await authService.getCurrentUserInfo();
                     setUser(userData);
+                    console.log('Usuario actualizado en contexto (checkAuthStatus):', userData);
                 } else {
                     await authService.clearAuthData();
                     setUser(null);
@@ -66,11 +67,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         try{
             setIsLoading(true);
             const response = await authService.login(credentials);
-            if (response.success && response.data) {
+            console.log('Respuesta completa de login:', response);
+            if (response.success && response.data && response.data.user) {
+                console.log('Usuario recibido:', response.data.user);
                 setUser(response.data.user);
+            } else {
+                console.log('Login fallido o usuario no recibido');
+                setUser(null);
             }
             return response;
         } catch (error: any) {
+            setUser(null);
+            console.log('Error en login:', error);
             throw error;
         } finally {
             setIsLoading(false);
@@ -97,7 +105,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     Promise<void> => {
         try {
             if (user) {
-                const userData = await authService.getCurrentUser();
+                const userData = await authService.getCurrentUserInfo();
                 setUser(userData);
             }
         } catch (error) {

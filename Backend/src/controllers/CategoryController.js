@@ -111,7 +111,7 @@ const getActiveCategories = asyncHandler(async (req, res) => {
 
 //crear categoria
 const createCategory = asyncHandler(async (req, res) => {
-    const { 
+    let { 
         name, 
         description,
         icon, 
@@ -121,11 +121,27 @@ const createCategory = asyncHandler(async (req, res) => {
         createdBy,
         slug
     } = req.body;
+    // Si no se envía slug, generarlo automáticamente a partir del nombre
+    if (!slug && name) {
+        slug = name
+            .toLowerCase()
+            .trim()
+            .replace(/[áàäâ]/g, 'a')
+            .replace(/[éèëê]/g, 'e')
+            .replace(/[íìïî]/g, 'i')
+            .replace(/[óòöô]/g, 'o')
+            .replace(/[úùüû]/g, 'u')
+            .replace(/[ñ]/g, 'n')
+            .replace(/[ç]/g, 'c')
+            .replace(/[^\\w\s-]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-')
+            .replace(/^-|-$/g, '');
+    }
 
-    if (!name || !slug) {
+    if (!name) {
         const errors = [];
-        if (!name) errors.push('El nombre de la categoría es obligatorio');
-        if (!slug) errors.push('El slug de la categoría es obligatorio');
+        errors.push('El nombre de la categoría es obligatorio');
         return res.status(400).json({
             success: false,
             message: 'Error de validación',
@@ -143,15 +159,7 @@ const createCategory = asyncHandler(async (req, res) => {
         });
     }
 
-    // Validar slug duplicado
-    const existingSlug = await Category.findOne({ slug });
-    if (existingSlug) {
-        return res.status(400).json({
-            success: false,
-            message: 'Ya existe una categoría con este slug',
-            errors: ['El slug de la categoría ya está en uso']
-        });
-    }
+        // Ya no se valida slug duplicado
 
     //crear la categoria
     const category = await Category.create({
@@ -203,17 +211,7 @@ const updateCategory = asyncHandler(async (req, res) => {
             return;
         }
     }
-    // Validar slug duplicado
-    if (slug && slug !== category.slug) {
-        const existingSlug = await Category.findOne({ slug });
-        if (existingSlug) {
-            return res.status(400).json({
-                success: false,
-                message: 'Ya existe una categoría con este slug',
-                errors: ['El slug de la categoría ya está en uso']
-            });
-        }
-    }
+    // El slug ya no se valida como duplicado ni obligatorio
     //actualizar la categoria
     if (name) category.name = name;
     if (description !== undefined) category.description = description;

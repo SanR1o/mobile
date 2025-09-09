@@ -172,7 +172,7 @@ const UsersScreen: React.FC = () => {
         }
 
         const response = await apiService.put(`/users/${editingUser._id}`, updateData);
-        if (response.success) {
+        if ((response.data as any).success) {
           Alert.alert('Éxito', 'Usuario actualizado correctamente');
           setModalVisible(false);
           await loadUsers();
@@ -180,7 +180,7 @@ const UsersScreen: React.FC = () => {
       } else {
         // Crear nuevo usuario
         const response = await apiService.post('/users', formData);
-        if (response.success) {
+        if ((response.data as any).success) {
           Alert.alert('Éxito', 'Usuario creado correctamente');
           setModalVisible(false);
           await loadUsers();
@@ -207,7 +207,7 @@ const UsersScreen: React.FC = () => {
               const response = await apiService.put(`/users/${user._id}`, {
                 isActive: !user.isActive
               });
-              if (response.success) {
+              if ((response.data as any).success) {
                 Alert.alert('Éxito', `Usuario ${action}do correctamente`);
                 await loadUsers();
               }
@@ -232,7 +232,7 @@ const UsersScreen: React.FC = () => {
           onPress: async () => {
             try {
               const response = await apiService.delete(`/users/${user._id}`);
-              if (response.success) {
+              if ((response.data as any).success) {
                 Alert.alert('Éxito', 'Usuario eliminado correctamente');
                 await loadUsers();
               }

@@ -98,13 +98,19 @@ const SubcategoriesScreen: React.FC = () => {
         }
         try {
             setIsLoading(true);
+            // Enviar 'category' en vez de 'categoryId'
+            const subcatData = {
+                name: formData.name,
+                description: formData.description,
+                category: formData.categoryId
+            };
             let response;
             if (editingSubcategory) {
-                response = await apiService.put(`/subcategories/${editingSubcategory._id}`, formData);
+                response = await apiService.put(`/subcategories/${editingSubcategory._id}`, subcatData);
             } else {
-                response = await apiService.post('/subcategories', formData);
+                response = await apiService.post('/subcategories', subcatData);
             }
-            if (response.success) {
+            if ((response.data as any).success) {
                 Alert.alert('Éxito', editingSubcategory ? 'Subcategoría actualizada.' : 'Subcategoría creada.');
                 loadData();
                 closeModal();
@@ -127,10 +133,10 @@ const SubcategoriesScreen: React.FC = () => {
                 {
                     text: 'Eliminar', style: 'destructive',
                     onPress: async () => {
+                        setIsLoading(true);
                         try {
-                            setIsLoading(true);
                             const response = await apiService.delete(`/subcategories/${subcategory._id}`);
-                            if (response.success) {
+                            if ((response.data as any).success) {
                                 Alert.alert('Éxito', 'Subcategoría eliminada.');
                                 loadData();
                             } else {
@@ -171,17 +177,17 @@ const SubcategoriesScreen: React.FC = () => {
                     text: action.charAt(0).toUpperCase() + action.slice(1),
                     style: subcategory.isActive ? 'destructive' : 'default',
                     onPress: async () => {
+                        setIsLoading(true);
                         try {
-                            setIsLoading(true);
                             const response = await apiService.patch(`/subcategories/${subcategory._id}/toggle-status`, {});
-                            if (response.success) {
+                            if ((response.data as any).success) {
                                 Alert.alert('Éxito', 'Estado de la subcategoría actualizado.');
                                 loadData();
                             } else {
                                 Alert.alert('Error', 'No se pudo actualizar el estado de la subcategoría.');
                             }
                         } catch (error: any) {
-                            Alert.alert('Error', error.message);
+                            Alert.alert('Error', error.message || 'Ocurrió un error al actualizar el estado.');
                         } finally {
                             setIsLoading(false);
                         }
@@ -201,55 +207,49 @@ const SubcategoriesScreen: React.FC = () => {
     const SubcategoryCard: React.FC<{ subcategory: Subcategory }> = ({ subcategory }) => {
         const categoryName = getCategoryName(subcategory.categoryId);
         return (
-            <View style={[componentStyles.baseCard, !subcategory.isActive && componentStyles.cardInactive]}>
-                <View style={componentStyles.cardHeader}>
-                    <View style={componentStyles.cardInfo}>
-                        <View style={componentStyles.titleRow}>
-                            <Text style={[componentStyles.cardTitle, !subcategory.isActive && componentStyles.cardInactive]}>
-                                {subcategory.name}
-                            </Text>
-                            <Text style={[componentStyles.statusBadge, subcategory.isActive ? componentStyles.statusBadgeActive : componentStyles.statusBadgeInactive]}>
-                                {subcategory.isActive ? 'Activo' : 'Inactivo'}
-                            </Text>
-                        </View>
-                    </View>
-                    {subcategory.description && (
-                        <Text style={[componentStyles.cardDescription, !subcategory.isActive && componentStyles.cardDescriptionInactive]}>
-                            {subcategory.description}
+            <View style={globalStyles.userCard}>
+                <View style={globalStyles.userCardHeader}>
+                    <Text style={globalStyles.userCardName}>{subcategory.name}</Text>
+                    <View style={[globalStyles.userCardRole, subcategory.isActive ? globalStyles.userStatusActive : globalStyles.userStatusInactive]}>
+                        <Text style={[globalStyles.userCardRole, subcategory.isActive ? globalStyles.userStatusActive : globalStyles.userStatusInactive]}>
+                            {subcategory.isActive ? 'Activo' : 'Inactivo'}
                         </Text>
+                    </View>
+                </View>
+                <View style={globalStyles.userCardInfo}>
+                    {subcategory.description && (
+                        <Text style={globalStyles.userCardEmail}>Descripción: {subcategory.description}</Text>
                     )}
-                    <Text style={componentStyles.cardDate}>
+                    <Text style={globalStyles.userCardEmail}>Categoría: {categoryName}</Text>
+                    <Text style={globalStyles.userCardEmail}>
                         Creado: {(subcategory as any).createdAt ? new Date((subcategory as any).createdAt).toLocaleDateString() : ''}
                     </Text>
-                    <View style={componentStyles.cardActions}>
-                        <TouchableOpacity
-                            style={componentStyles.actionButton}
-                            onPress={() => handleToggleStatus(subcategory)}
-                            accessibilityLabel={subcategory.isActive ? 'Desactivar subcategoría' : 'Activar subcategoría'}
+                </View>
+                <View style={globalStyles.userCardActions}>
+                    <TouchableOpacity 
+                        style={[globalStyles.userActionButton, globalStyles.userToggleButton]}
+                        onPress={() => handleToggleStatus(subcategory)}
+                    >
+                        <Text style={globalStyles.userActionButtonText}>
+                            {subcategory.isActive ? 'Desactivar' : 'Activar'}
+                        </Text>
+                    </TouchableOpacity>
+                    {canEdit() && (
+                        <TouchableOpacity 
+                            style={[globalStyles.userActionButton, globalStyles.userEditButton]}
+                            onPress={() => openEditModal(subcategory)}
                         >
-                            <Text style={[componentStyles.toggleButton, !subcategory.isActive ? componentStyles.toggleButtonActive : componentStyles.toggleButtonInactive]}>
-                                {subcategory.isActive ? 'Desactivar' : 'Activar'}
-                            </Text>
+                            <Text style={globalStyles.userActionButtonText}>Editar</Text>
                         </TouchableOpacity>
-                        {canEdit() && (
-                            <TouchableOpacity
-                                style={[componentStyles.actionButton, componentStyles.editButton, { marginLeft: 8 }]}
-                                onPress={() => openEditModal(subcategory)}
-                                accessibilityLabel="Editar subcategoría"
-                            >
-                                <Ionicons name="create" size={18} color="white" />
-                            </TouchableOpacity>
-                        )}
-                        {canDelete() && (
-                            <TouchableOpacity
-                                style={[componentStyles.actionButton, componentStyles.deleteButton, { marginLeft: 8 }]}
-                                onPress={() => handleDelete(subcategory)}
-                                accessibilityLabel="Eliminar subcategoría"
-                            >
-                                <Ionicons name="trash" size={18} color="white" />
-                            </TouchableOpacity>
-                        )}
-                    </View>
+                    )}
+                    {canDelete() && (
+                        <TouchableOpacity 
+                            style={[globalStyles.userActionButton, globalStyles.userDeleteButton]}
+                            onPress={() => handleDelete(subcategory)}
+                        >
+                            <Text style={globalStyles.userActionButtonText}>Eliminar</Text>
+                        </TouchableOpacity>
+                    )}
                 </View>
             </View>
         );

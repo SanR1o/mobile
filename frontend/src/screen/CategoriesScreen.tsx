@@ -32,8 +32,8 @@ const CategoriesScreen: React.FC = () => {
     const [editingCategory, setEditingCategory] = useState<Category | null>(null);
     //estado del formulario
     const [formData, setFormData] = useState({ 
-        name: '', 
-        description: '' 
+        name: '',
+        description: ''
     });
 
     useEffect(() => {
@@ -66,7 +66,7 @@ const CategoriesScreen: React.FC = () => {
         setEditingCategory(null);
         setFormData({ 
             name: '', 
-            description: '' 
+            description: ''
         });
         setIsModalVisible(true);
     }
@@ -85,7 +85,7 @@ const CategoriesScreen: React.FC = () => {
         setEditingCategory(null);
         setFormData({ 
             name: '', 
-            description: '' 
+            description: ''
         });
     }
 
@@ -99,7 +99,7 @@ const CategoriesScreen: React.FC = () => {
             if (editingCategory) {
                 // Actualizar categoría existente
                 const response = await apiService.put(`/categories/${editingCategory._id}`, formData);
-                if (response.success) {
+                if ((response.data as any).success) {
                     Alert.alert("Éxito", "Categoría actualizada.");
                     loadCategories();
                     closeModal();
@@ -109,7 +109,7 @@ const CategoriesScreen: React.FC = () => {
             } else {
                 // Crear nueva categoría
                 const response = await apiService.post('/categories', formData);
-                if (response.success) {
+                if ((response.data as any).success) {
                     Alert.alert("Éxito", "Categoría creada.");
                     loadCategories();
                     closeModal();
@@ -137,18 +137,25 @@ const CategoriesScreen: React.FC = () => {
                     text: "Eliminar",
                     style: "destructive",
                     onPress: async () => {
+                        setIsLoading(true);
                         try {
-                            setIsLoading(true);
                             const response = await apiService.delete(`/categories/${category._id}`);
-                            if (response.success) {
-                                Alert.alert("Éxito", "Categoría eliminada.");
-                                loadCategories();
+                            if (
+                                response &&
+                                typeof response === 'object' &&
+                                Object.prototype.hasOwnProperty.call(response, 'success') &&
+                                typeof response.success === 'boolean'
+                            ) {
+                                if (response.success) {
+                                    Alert.alert("Éxito", "Categoría eliminada.");
+                                    loadCategories();
+                                } else {
+                                    Alert.alert("Error", response.message || "No se pudo eliminar la categoría.");
+                                }
                             } else {
-                                Alert.alert("Error", "No se pudo eliminar la categoría.");
+                                Alert.alert("Error", "No se pudo eliminar la categoría. Respuesta inesperada del servidor.");
                             }
                         } catch (error: any) {
-                            Alert.alert("Error", error.message);
-                            //manejo de errores
                             const errorMessage = error.message || '';
                             if (errorMessage.includes('subcategories associated') ||
                                 errorMessage.toLowerCase().includes('subcategorías asociadas') ||
@@ -183,17 +190,17 @@ const CategoriesScreen: React.FC = () => {
                     text: action.charAt(0).toUpperCase() + action.slice(1),
                     style: category.isActive ? "destructive" : "default",
                     onPress: async () => {
+                        setIsLoading(true);
                         try {
-                            setIsLoading(true);
                             const response = await apiService.patch(`/categories/${category._id}/toggle-status`, {});
-                            if (response.success) {
+                            if ((response.data as any).success) {
                                 Alert.alert("Éxito", "Estado de la categoría actualizado.");
                                 loadCategories();
                             } else {
                                 Alert.alert("Error", "No se pudo actualizar el estado de la categoría.");
                             }
                         } catch (error: any) {
-                            Alert.alert("Error", error.message);
+                            Alert.alert("Error", error.message || "Ocurrió un error al actualizar el estado.");
                         } finally {
                             setIsLoading(false);
                         }
@@ -205,55 +212,48 @@ const CategoriesScreen: React.FC = () => {
 
     const CategoryCard: React.FC<{ category: Category }> = ({ category }) => {
         return (
-            <View style={[componentStyles.baseCard, !category.isActive && componentStyles.cardInactive]}>
-                <View style={componentStyles.cardHeader}>
-                    <View style={componentStyles.cardInfo}>
-                        <View style={componentStyles.titleRow}>
-                            <Text style={[componentStyles.cardTitle, !category.isActive && componentStyles.cardInactive]}>
-                                {category.name}
-                            </Text>
-                            <Text style={[componentStyles.statusBadge, category.isActive ? componentStyles.statusBadgeActive : componentStyles.statusBadgeInactive]}>
-                                {category.isActive ? 'Activo' : 'Inactivo'}
-                            </Text>
-                        </View>
-                    </View>
-                    {category.description && (
-                        <Text style={[componentStyles.cardDescription, !category.isActive && componentStyles.cardDescriptionInactive]}>
-                            {category.description}
+            <View style={globalStyles.userCard}>
+                <View style={globalStyles.userCardHeader}>
+                    <Text style={globalStyles.userCardName}>{category.name}</Text>
+                    <View style={[globalStyles.userCardRole, category.isActive ? globalStyles.userStatusActive : globalStyles.userStatusInactive]}>
+                        <Text style={[globalStyles.userCardRole, category.isActive ? globalStyles.userStatusActive : globalStyles.userStatusInactive]}>
+                            {category.isActive ? 'Activo' : 'Inactivo'}
                         </Text>
+                    </View>
+                </View>
+                <View style={globalStyles.userCardInfo}>
+                    {category.description && (
+                        <Text style={globalStyles.userCardEmail}>Descripción: {category.description}</Text>
                     )}
-                    <Text style={componentStyles.cardDate}>
+                    <Text style={globalStyles.userCardEmail}>
                         Creado: {(category as any).createdAt ? new Date((category as any).createdAt).toLocaleDateString() : ''}
                     </Text>
-                    <View style={componentStyles.cardActions}>
-                        <TouchableOpacity
-                            style={componentStyles.actionButton}
-                            onPress={() => handleToggleStatus(category)}
-                            accessibilityLabel={category.isActive ? 'Desactivar categoría' : 'Activar categoría'}
+                </View>
+                <View style={globalStyles.userCardActions}>
+                    <TouchableOpacity 
+                        style={[globalStyles.userActionButton, globalStyles.userToggleButton]}
+                        onPress={() => handleToggleStatus(category)}
+                    >
+                        <Text style={globalStyles.userActionButtonText}>
+                            {category.isActive ? 'Desactivar' : 'Activar'}
+                        </Text>
+                    </TouchableOpacity>
+                    {canEdit() && (
+                        <TouchableOpacity 
+                            style={[globalStyles.userActionButton, globalStyles.userEditButton]}
+                            onPress={() => openEditModal(category)}
                         >
-                            <Text style={[componentStyles.toggleButton, !category.isActive ? componentStyles.toggleButtonActive : componentStyles.toggleButtonInactive]}>
-                                {category.isActive ? 'Desactivar' : 'Activar'}
-                            </Text>
+                            <Text style={globalStyles.userActionButtonText}>Editar</Text>
                         </TouchableOpacity>
-                        {canEdit() && (
-                            <TouchableOpacity
-                                style={[componentStyles.actionButton, componentStyles.editButton, { marginLeft: 8 }]}
-                                onPress={() => openEditModal(category)}
-                                accessibilityLabel="Editar categoría"
-                            >
-                                <Ionicons name="create" size={18} color="white" />
-                            </TouchableOpacity>
-                        )}
-                        {canDelete() && (
-                            <TouchableOpacity
-                                style={[componentStyles.actionButton, componentStyles.deleteButton, { marginLeft: 8 }]}
-                                onPress={() => handleDelete(category)}
-                                accessibilityLabel="Eliminar categoría"
-                            >
-                                <Ionicons name="trash" size={18} color="white" />
-                            </TouchableOpacity>
-                        )}
-                    </View>
+                    )}
+                    {canDelete() && (
+                        <TouchableOpacity 
+                            style={[globalStyles.userActionButton, globalStyles.userDeleteButton]}
+                            onPress={() => handleDelete(category)}
+                        >
+                            <Text style={globalStyles.userActionButtonText}>Eliminar</Text>
+                        </TouchableOpacity>
+                    )}
                 </View>
             </View>
         );
@@ -345,17 +345,21 @@ const CategoriesScreen: React.FC = () => {
                             />
                         </View>
                             <View style={globalStyles.inputContainer}>
+                            {/* Campo slug eliminado del formulario */}
+                        </View>
+                        <View style={globalStyles.inputContainer}>
                             <Text style={globalStyles.inputLabel}>
                                 Descripción
                             </Text>
                             <TextInput
-                            style={[globalStyles.textInput, {height: 80, textAlignVertical: 'top'}]}
-                            value={formData.description}
-                            onChangeText={(value) => setFormData({ ...formData, description: value })}
-                            placeholder="Descripcion de la categoría"
-                            placeholderTextColor={'#999'}
-                            multiline={true}
-                            numberOfLines={3}
+                                style={[globalStyles.textInput, {height: 80, textAlignVertical: 'top'}]
+                                }
+                                value={formData.description}
+                                onChangeText={(value) => setFormData({ ...formData, description: value })}
+                                placeholder="Descripcion de la categoría"
+                                placeholderTextColor={'#999'}
+                                multiline={true}
+                                numberOfLines={3}
                             />
                         </View>
 

@@ -161,13 +161,10 @@ class ApiService {
     }
 
     //metodo generico DELETE
-    async delete<T>(endpoint: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+    async delete<T>(endpoint: string, config?: AxiosRequestConfig): Promise<any> {
         try {
             const response = await this.axiosInstance.delete<T>(endpoint, config);
-            return {
-                data: response.data,
-                status: response.status,
-            };
+            return response.data;
         } catch (error: any) {
             throw this.handleError(error);
         }

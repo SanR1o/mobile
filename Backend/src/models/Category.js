@@ -15,13 +15,11 @@ const categorySchema = new mongoose.Schema({
         trim: true,
         maxlength: [500, 'La descripción de la categoría no puede exceder los 500 caracteres'],
     },
-    slug: {
-        type: String,
-        required: [true, 'El slug de la categoría es obligatorio'],
-        unique: true,
-        lowercase: true,
-        trim: true,
-    },
+        slug: {
+            type: String,
+            lowercase: true,
+            trim: true,
+        },
     isActive: {
         type: Boolean,
         default: true,

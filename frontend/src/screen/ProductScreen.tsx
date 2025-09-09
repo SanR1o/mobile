@@ -249,7 +249,7 @@ const ProductsScreen: React.FC = () => {
         if (editingProduct) {
             // Editar producto
             const response = await apiService.put(`/products/${editingProduct._id}`, ProductData);
-            if (response.success) {
+            if ((response.data as any).success) {
                 Alert.alert('Éxito', 'Producto actualizado.');
                 closeModal();
                 loadProducts();
@@ -259,7 +259,7 @@ const ProductsScreen: React.FC = () => {
         } else {
             // Crear nuevo producto
             const response = await apiService.post('/products', ProductData);
-            if (response.success) {
+            if ((response.data as any).success) {
                 Alert.alert('Éxito', 'Producto creado.');
                 closeModal();
                 loadProducts();
@@ -285,17 +285,16 @@ const ProductsScreen: React.FC = () => {
                 {
                     text: 'Eliminar', style: 'destructive',
                     onPress: async () => {
+                        setIsLoading(true);
                         try {
-                            setIsLoading(true);
                             const response = await apiService.delete(`/products/${product._id}`);
-                            if (response.success) {
+                            if ((response.data as any).success) {
                                 Alert.alert('Éxito', 'Producto eliminado.');
                                 loadProducts();
                             } else {
                                 Alert.alert('Error', 'No se pudo eliminar el producto.');
                             }
                         } catch (error: any) {
-                            console.error(error);
                             Alert.alert('Error', error.message || 'Ocurrió un error al eliminar el producto.');
                         } finally {
                             setIsLoading(false);
@@ -318,17 +317,17 @@ const ProductsScreen: React.FC = () => {
                     text: action.charAt(0).toUpperCase() + action.slice(1),
                     style: product.isActive ? 'destructive' : 'default',
                     onPress: async () => {
+                        setIsLoading(true);
                         try {
-                            setIsLoading(true);
                             const response = await apiService.patch(`/products/${product._id}/toggle-status`, {});
-                            if (response.success) {
-                                Alert.alert('Éxito', 'Estado del producto actualizado.');
-                                loadProducts();
-                            } else {
-                                Alert.alert('Error', 'No se pudo actualizar el estado del producto.');
-                            }
+                                if ((response.data as any).success) {
+                                    Alert.alert('Éxito', 'Estado del producto actualizado.');
+                                    loadProducts();
+                                } else {
+                                    Alert.alert('Error', 'No se pudo actualizar el estado del producto.');
+                                }
                         } catch (error: any) {
-                            Alert.alert('Error', error.message);
+                            Alert.alert('Error', error.message || 'No se pudo actualizar el estado del producto.');
                         } finally {
                             setIsLoading(false);
                         }
@@ -353,63 +352,56 @@ const ProductsScreen: React.FC = () => {
         const categoryName = getCategoryName(typeof product.categoryId === 'object' ? product.categoryId._id : product.categoryId);
         const subcategoryName = getSubcategoryName(typeof product.subcategoryId === 'object' ? product.subcategoryId._id : product.subcategoryId);
         return (
-            <View style={[componentStyles.baseCard, !product.isActive && componentStyles.cardInactive]}>
-                <View style={componentStyles.cardHeader}>
-                    <View style={componentStyles.cardInfo}>
-                        <View style={componentStyles.titleRow}>
-                            <Text style={[componentStyles.cardTitle, !product.isActive && componentStyles.cardInactive]}>
-                                {product.name}
-                            </Text>
-                            <Text style={[componentStyles.statusBadge, product.isActive ? componentStyles.statusBadgeActive : componentStyles.statusBadgeInactive]}>
-                                {product.isActive ? 'Activo' : 'Inactivo'}
-                            </Text>
-                        </View>
-                        <Text style={componentStyles.cardTitle}>SKU: {product.sku}</Text>
-                        <Text style={componentStyles.cardTitle}>Precio: {formatPrice(Number(product.price))}</Text>
-                        <Text style={componentStyles.cardTitle}>Stock: {product.stock?.quantity}</Text>
-                        {product.shortDescription ? (
-                            <Text style={componentStyles.cardTitle}>Resumen: {product.shortDescription}</Text>
-                        ) : null}
-                        <Text style={componentStyles.cardTitle}>Categoría: {categoryName}</Text>
-                        <Text style={componentStyles.cardTitle}>Subcategoría: {subcategoryName}</Text>
-                    </View>
-                    {product.description && (
-                        <Text style={[componentStyles.cardDescription, !product.isActive && componentStyles.cardDescriptionInactive]}>
-                            {product.description}
+            <View style={globalStyles.userCard}>
+                <View style={globalStyles.userCardHeader}>
+                    <Text style={globalStyles.userCardName}>{product.name}</Text>
+                    <View style={[globalStyles.userCardRole, product.isActive ? globalStyles.userStatusActive : globalStyles.userStatusInactive]}>
+                        <Text style={[globalStyles.userCardRole, product.isActive ? globalStyles.userStatusActive : globalStyles.userStatusInactive]}>
+                            {product.isActive ? 'Activo' : 'Inactivo'}
                         </Text>
+                    </View>
+                </View>
+                <View style={globalStyles.userCardInfo}>
+                    <Text style={globalStyles.userCardEmail}>SKU: {product.sku}</Text>
+                    <Text style={globalStyles.userCardEmail}>Precio: {formatPrice(Number(product.price))}</Text>
+                    <Text style={globalStyles.userCardEmail}>Stock: {product.stock?.quantity}</Text>
+                    {product.shortDescription ? (
+                        <Text style={globalStyles.userCardEmail}>Resumen: {product.shortDescription}</Text>
+                    ) : null}
+                    <Text style={globalStyles.userCardEmail}>Categoría: {categoryName}</Text>
+                    <Text style={globalStyles.userCardEmail}>Subcategoría: {subcategoryName}</Text>
+                    {product.description && (
+                        <Text style={globalStyles.userCardEmail}>Descripción: {product.description}</Text>
                     )}
-                    <Text style={componentStyles.cardDate}>
+                    <Text style={globalStyles.userCardEmail}>
                         Creado: {product.createdAt ? new Date(product.createdAt).toLocaleDateString() : ''}
                     </Text>
-                    <View style={componentStyles.cardActions}>
-                        <TouchableOpacity
-                            style={componentStyles.actionButton}
-                            onPress={() => handleToggleStatus(product)}
-                            accessibilityLabel={product.isActive ? 'Desactivar producto' : 'Activar producto'}
+                </View>
+                <View style={globalStyles.userCardActions}>
+                    <TouchableOpacity 
+                        style={[globalStyles.userActionButton, globalStyles.userToggleButton]}
+                        onPress={() => handleToggleStatus(product)}
+                    >
+                        <Text style={globalStyles.userActionButtonText}>
+                            {product.isActive ? 'Desactivar' : 'Activar'}
+                        </Text>
+                    </TouchableOpacity>
+                    {canEdit() && (
+                        <TouchableOpacity 
+                            style={[globalStyles.userActionButton, globalStyles.userEditButton]}
+                            onPress={() => openEditModal(product)}
                         >
-                            <Text style={[componentStyles.toggleButton, !product.isActive ? componentStyles.toggleButtonActive : componentStyles.toggleButtonInactive]}>
-                                {product.isActive ? 'Desactivar' : 'Activar'}
-                            </Text>
+                            <Text style={globalStyles.userActionButtonText}>Editar</Text>
                         </TouchableOpacity>
-                        {canEdit() && (
-                            <TouchableOpacity
-                                style={[componentStyles.actionButton, componentStyles.editButton, { marginLeft: 8 }]}
-                                onPress={() => openEditModal(product)}
-                                accessibilityLabel="Editar producto"
-                            >
-                                <Ionicons name="create" size={18} color="white" />
-                            </TouchableOpacity>
-                        )}
-                        {canDelete() && (
-                            <TouchableOpacity
-                                style={[componentStyles.actionButton, componentStyles.deleteButton, { marginLeft: 8 }]}
-                                onPress={() => handleDelete(product)}
-                                accessibilityLabel="Eliminar producto"
-                            >
-                                <Ionicons name="trash" size={18} color="white" />
-                            </TouchableOpacity>
-                        )}
-                    </View>
+                    )}
+                    {canDelete() && (
+                        <TouchableOpacity 
+                            style={[globalStyles.userActionButton, globalStyles.userDeleteButton]}
+                            onPress={() => handleDelete(product)}
+                        >
+                            <Text style={globalStyles.userActionButtonText}>Eliminar</Text>
+                        </TouchableOpacity>
+                    )}
                 </View>
             </View>
         );

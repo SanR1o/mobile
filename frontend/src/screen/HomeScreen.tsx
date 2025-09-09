@@ -257,6 +257,11 @@ const HomeScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
+    // ScrollView
+    scrollContent: {
+        paddingBottom: 100, // Espacio para la barra de navegación
+    },
+
     // Header de Usuario
     userHeader: {
         backgroundColor: colors.surface,

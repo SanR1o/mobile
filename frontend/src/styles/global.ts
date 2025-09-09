@@ -4,6 +4,46 @@ import { spacing, typography, layout } from './layout';
 
 // Estilos comunes que se usan en múltiples pantallas
 export const globalStyles = StyleSheet.create({
+  // Estadísticas Dashboard
+  statCardGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    gap: spacing.md,
+  },
+  statCard: {
+    backgroundColor: colors.surface,
+    borderRadius: layout.borderRadius.large,
+    padding: spacing.lg,
+    minHeight: 100,
+    borderLeftWidth: 4,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.22,
+    shadowRadius: 2.22,
+    flex: 1,
+    minWidth: 150,
+    maxWidth: '48%',
+    marginBottom: spacing.md,
+  borderWidth: 2,
+  borderColor: '#e0e0e0',
+  },
+  statCardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: spacing.sm,
+  },
+  statCardTitle: {
+    fontSize: typography.fontSize.body,
+    fontWeight: typography.fontWeight.semiBold,
+    marginLeft: spacing.xs,
+  },
+  statCardValue: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
   // Contenedores
   container: {
     flex: 1,

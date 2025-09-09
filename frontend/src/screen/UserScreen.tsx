@@ -232,7 +232,7 @@ const UsersScreen: React.FC = () => {
           onPress: async () => {
             try {
               const response = await apiService.delete(`/users/${user._id}`);
-              if ((response.data as any).success) {
+              if (response.success) {
                 Alert.alert('Éxito', 'Usuario eliminado correctamente');
                 await loadUsers();
               }
@@ -335,10 +335,10 @@ const UsersScreen: React.FC = () => {
               </View>
 
               <View style={globalStyles.userCardInfo}>
-                <Text style={globalStyles.userCardEmail}>Email{user.email}</Text>
+                <Text style={globalStyles.userCardEmail}>Email: {user.email}</Text>
                 <Text style={globalStyles.userCardEmail}> @{user.username}</Text>
                 {user.phone && (
-                  <Text style={globalStyles.userCardPhone}>Telefono {user.phone}</Text>
+                  <Text style={globalStyles.userCardPhone}>Telefono: {user.phone}</Text>
                 )}
                 <Text 
                   style={[

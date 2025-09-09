@@ -106,12 +106,12 @@ const HomeScreen: React.FC = () => {
         iconName: string;
     }> = ({ title, value, color, iconName }) => {
         return (
-            <View style={[styles.statCard, { borderLeftColor: color }]}>
-                <View style={styles.statCardHeader}>
+            <View style={[globalStyles.statCard, { borderLeftColor: color }]}> 
+                <View style={globalStyles.statCardHeader}>
                     <Ionicons name={iconName as any} size={24} color={color} />
-                    <Text style={[styles.statCardTitle, { color }]}>{title}</Text>
+                    <Text style={[globalStyles.statCardTitle, { color }]}>{title}</Text>
                 </View>
-                <Text style={[styles.statCardValue, { color }]}>{value}</Text>
+                <Text style={[globalStyles.statCardValue, { color }]}>{value}</Text>
             </View>
         );
     };
@@ -173,7 +173,7 @@ const HomeScreen: React.FC = () => {
                     <Text style={styles.sectionTitle}>Estadísticas</Text>
                 </View>
                 
-                <View style={styles.statsGrid}>
+                <View style={globalStyles.statCardGrid}>
                     {hasRole('admin') && (
                         <StatCard 
                             title="Usuarios"
@@ -214,26 +214,26 @@ const HomeScreen: React.FC = () => {
                     {hasRole('admin') && (
                         <QuickAction
                             iconName="people"
-                            onPress={() => navigation.navigate('UserManagement' as never)}
+                            onPress={() => navigation.navigate('Users' as never)}
                             title="Usuarios"
                             color={colors.admin}
                         />
                     )}
                     <QuickAction
                         iconName="folder"
-                        onPress={() => navigation.navigate('CategoryManagement' as never)}
+                        onPress={() => navigation.navigate('Category' as never)}
                         title="Categorías"
                         color={colors.secondary}
                     />
                     <QuickAction
                         iconName="albums"
-                        onPress={() => navigation.navigate('SubcategoryManagement' as never)}
+                        onPress={() => navigation.navigate('Subcategory' as never)}
                         title="Subcategorías"
                         color={colors.coordinator}
                     />
                     <QuickAction
                         iconName="cube"
-                        onPress={() => navigation.navigate('ProductManagement' as never)}
+                        onPress={() => navigation.navigate('Products' as never)}
                         title="Productos"
                         color={colors.accent}
                     />
@@ -316,44 +316,6 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: colors.textPrimary,
         marginLeft: spacing.sm,
-    },
-
-    // Tarjetas de Estadísticas
-    statsGrid: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        justifyContent: 'space-between',
-        gap: spacing.md,
-    },
-    statCard: {
-        backgroundColor: colors.surface,
-        borderRadius: 12,
-        padding: spacing.lg,
-        minHeight: 100,
-        borderLeftWidth: 4,
-        elevation: 2,
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 1,
-        },
-        shadowOpacity: 0.22,
-        shadowRadius: 2.22,
-    },
-    statCardHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: spacing.sm,
-    },
-    statCardTitle: {
-        fontSize: 14,
-        fontWeight: '600',
-        marginLeft: spacing.xs,
-    },
-    statCardValue: {
-        fontSize: 32,
-        fontWeight: 'bold',
-        textAlign: 'center',
     },
 
     // Acciones Rápidas

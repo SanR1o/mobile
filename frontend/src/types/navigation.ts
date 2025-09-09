@@ -1,6 +1,8 @@
 export type RootStackParamList = {
     Login: undefined;
     Main: undefined;
+    EditProfile: undefined;
+    ChangePassword: undefined;
 }
 
 export type MainTabParamList = {

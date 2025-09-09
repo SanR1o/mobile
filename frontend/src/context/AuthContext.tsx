@@ -6,10 +6,11 @@ import { User, LoginCredentials, LoginResponse } from '../types';
 //interfaz de contexto
 interface AuthContextType {
     user: User | null;
+    token: string | null;
     isAuthenticated: boolean;
     isLoading: boolean;
 
-//funciones de autenticacion
+    //funciones de autenticacion
     login: (credentials: LoginCredentials) => Promise <LoginResponse>;
     logout: () => Promise<void>;
     refresh: () => Promise<void>;
@@ -25,6 +26,7 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [user, setUser] = useState <User | null>(null);
+    const [token, setToken] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState <boolean>(true);
 
     useEffect(() => {
@@ -43,19 +45,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 if (isValidToken) {
                     const userData = await authService.getCurrentUserInfo();
                     setUser(userData);
+                    const storedToken = await authService.getToken();
+                    setToken(storedToken);
                     console.log('Usuario actualizado en contexto (checkAuthStatus):', userData);
                 } else {
                     await authService.clearAuthData();
                     setUser(null);
+                    setToken(null);
                 }
 
             } else {
-                setUser(null)
+                setUser(null);
+                setToken(null);
             }
         } catch (error) {
             console.error('Error verificando autenticacion: ', error);
             await authService.clearAuthData();
             setUser(null);
+            setToken(null);
         } finally {
             setIsLoading(false)
         }
@@ -71,13 +78,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             if (response.success && response.data && response.data.user) {
                 console.log('Usuario recibido:', response.data.user);
                 setUser(response.data.user);
+                setToken(response.data.token);
             } else {
                 console.log('Login fallido o usuario no recibido');
                 setUser(null);
+                setToken(null);
             }
             return response;
         } catch (error: any) {
             setUser(null);
+            setToken(null);
             console.log('Error en login:', error);
             throw error;
         } finally {
@@ -92,9 +102,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             setIsLoading(true);
             await authService.logout();
             setUser(null);
+            setToken(null);
         } catch (error) {
             console.warn('Error en logout: ', error);
             setUser(null);
+            setToken(null);
         } finally {
             setIsLoading(false);
         }
@@ -107,6 +119,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             if (user) {
                 const userData = await authService.getCurrentUserInfo();
                 setUser(userData);
+                const storedToken = await authService.getToken();
+                setToken(storedToken);
             }
         } catch (error) {
             console.warn('Error refrescando el usuario', error);
@@ -134,6 +148,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     const value: AuthContextType = {
         user,
+        token,
         isAuthenticated,
         isLoading,
         login,

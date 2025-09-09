@@ -14,6 +14,8 @@ import CategoryScreen from "../screen/CategoriesScreen";
 import SubcategoryScreen from "../screen/SubcategoriesScreen";
 import ProductScreen from "../screen/ProductScreen";
 import ProfileScreen from "../screen/ProfileScreen";
+import EditProfileScreen from "../screen/EditProfileScreen";
+import ChangePasswordScreen from "../screen/ChangePasswordScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -141,13 +143,23 @@ const AppNavigation: React.FC = () => {
                 animation: 'slide_from_bottom'
             }}>
                 {isAuthenticated ? (
-                    <Stack.Screen 
-                        name="Main" 
-                        component={MainTabNavigator} 
-                        options={{
-                            animationTypeForReplace: 'push'
-                        }}
-                    />
+                    <>
+                        <Stack.Screen 
+                            name="Main" 
+                            component={MainTabNavigator} 
+                            options={{
+                                animationTypeForReplace: 'push'
+                            }}
+                        />
+                        <Stack.Screen 
+                            name="EditProfile" 
+                            component={EditProfileScreen} 
+                        />
+                        <Stack.Screen 
+                            name="ChangePassword" 
+                            component={ChangePasswordScreen} 
+                        />
+                    </>
                 ) : (
                     <Stack.Screen 
                         name="Login" 

@@ -9,6 +9,8 @@ export interface User {
         isActive: boolean;
         createdAt?: string;
         updatedAt?: string;
+        lastLogin?: string;
+        token?: string;
     }
 
     export interface LoginCredentials {
@@ -248,6 +250,8 @@ export interface User {
     export type RootStackParamList = {
         Login: undefined;
         Main: undefined;
+        EditProfile: undefined;
+        ChangePassword: undefined;
     };
 
     export type MainTabParamList = {

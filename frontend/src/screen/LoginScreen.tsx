@@ -83,10 +83,6 @@ const LoginScreen: React.FC = () => {
                     <Text style={globalStyles.loginLogoText}>Logo</Text>
                     <Text style={globalStyles.loginAppTitle}>Mi App</Text>
                     <Text style={globalStyles.loginSubtitle}>Login</Text>
-                    {/* Log visual para depuración del estado de autenticación */}
-                    <Text style={{ color: isAuthenticated ? 'green' : 'red', fontWeight: 'bold', marginTop: 8 }}>
-                        Estado autenticado: {isAuthenticated ? 'Sí' : 'No'}
-                    </Text>
                 </View>
                 <View style={globalStyles.inputContainer}>
                     <View style={globalStyles.inputContainer}>

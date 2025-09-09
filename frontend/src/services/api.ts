@@ -5,7 +5,7 @@ import  { ApiResponse } from '../types';
 
 class ApiService {
     private axiosInstance: AxiosInstance;
-    private baseURL: string = 'http://192.168.2.16:5000/api';
+    private baseURL: string = 'http://192.168.95.1:5000/api';
 
     constructor() {
         this.axiosInstance = axios.create({

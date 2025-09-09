@@ -1,3 +1,7 @@
+// Utilidad para validar éxito en respuesta API
+function isApiSuccess(response: any, status?: number): boolean {
+    return (response && response.success === true) || (status && (status === 200 || status === 201));
+}
 import React, { useEffect, useState } from "react";
 import { 
     View,
@@ -99,22 +103,22 @@ const CategoriesScreen: React.FC = () => {
             if (editingCategory) {
                 // Actualizar categoría existente
                 const response = await apiService.put(`/categories/${editingCategory._id}`, formData);
-                if ((response.data as any).success) {
+                if (isApiSuccess(response, response?.status)) {
                     Alert.alert("Éxito", "Categoría actualizada.");
                     loadCategories();
                     closeModal();
                 } else {
-                    Alert.alert("Error", "No se pudo actualizar la categoría.");
+                    Alert.alert("Error", response?.message || "No se pudo actualizar la categoría.");
                 }
             } else {
                 // Crear nueva categoría
                 const response = await apiService.post('/categories', formData);
-                if ((response.data as any).success) {
+                if (isApiSuccess(response, response?.status)) {
                     Alert.alert("Éxito", "Categoría creada.");
                     loadCategories();
                     closeModal();
                 } else {
-                    Alert.alert("Error", "No se pudo crear la categoría.");
+                    Alert.alert("Error", response?.message || "No se pudo crear la categoría.");
                 }
             }
         } catch (error) {
@@ -140,20 +144,11 @@ const CategoriesScreen: React.FC = () => {
                         setIsLoading(true);
                         try {
                             const response = await apiService.delete(`/categories/${category._id}`);
-                            if (
-                                response &&
-                                typeof response === 'object' &&
-                                Object.prototype.hasOwnProperty.call(response, 'success') &&
-                                typeof response.success === 'boolean'
-                            ) {
-                                if (response.success) {
-                                    Alert.alert("Éxito", "Categoría eliminada.");
-                                    loadCategories();
-                                } else {
-                                    Alert.alert("Error", response.message || "No se pudo eliminar la categoría.");
-                                }
+                            if (isApiSuccess(response, response?.status)) {
+                                Alert.alert("Éxito", "Categoría eliminada.");
+                                loadCategories();
                             } else {
-                                Alert.alert("Error", "No se pudo eliminar la categoría. Respuesta inesperada del servidor.");
+                                Alert.alert("Error", response?.message || "No se pudo eliminar la categoría.");
                             }
                         } catch (error: any) {
                             const errorMessage = error.message || '';
@@ -193,11 +188,11 @@ const CategoriesScreen: React.FC = () => {
                         setIsLoading(true);
                         try {
                             const response = await apiService.patch(`/categories/${category._id}/toggle-status`, {});
-                            if ((response.data as any).success) {
+                            if (isApiSuccess(response, response?.status)) {
                                 Alert.alert("Éxito", "Estado de la categoría actualizado.");
                                 loadCategories();
                             } else {
-                                Alert.alert("Error", "No se pudo actualizar el estado de la categoría.");
+                                Alert.alert("Error", response?.message || "No se pudo actualizar el estado de la categoría.");
                             }
                         } catch (error: any) {
                             Alert.alert("Error", error.message || "Ocurrió un error al actualizar el estado.");

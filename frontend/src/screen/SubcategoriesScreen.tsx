@@ -1,3 +1,7 @@
+// Utilidad para validar éxito en respuesta API
+function isApiSuccess(response: any, status?: number): boolean {
+    return (response && response.success === true) || (status && (status === 200 || status === 201));
+}
 import React, { useEffect, useState } from "react";
 import { 
     View,
@@ -110,12 +114,12 @@ const SubcategoriesScreen: React.FC = () => {
             } else {
                 response = await apiService.post('/subcategories', subcatData);
             }
-            if ((response.data as any).success) {
+            if (isApiSuccess(response, response?.status)) {
                 Alert.alert('Éxito', editingSubcategory ? 'Subcategoría actualizada.' : 'Subcategoría creada.');
                 loadData();
                 closeModal();
             } else {
-                Alert.alert('Error', 'No se pudo guardar la subcategoría.');
+                Alert.alert('Error', response?.message || 'No se pudo guardar la subcategoría.');
             }
         } catch (error) {
             Alert.alert('Error', 'Ocurrió un error al guardar la subcategoría.');
@@ -136,11 +140,11 @@ const SubcategoriesScreen: React.FC = () => {
                         setIsLoading(true);
                         try {
                             const response = await apiService.delete(`/subcategories/${subcategory._id}`);
-                            if ((response.data as any).success) {
+                            if (isApiSuccess(response, response?.status)) {
                                 Alert.alert('Éxito', 'Subcategoría eliminada.');
                                 loadData();
                             } else {
-                                Alert.alert('Error', 'No se pudo eliminar la subcategoría.');
+                                Alert.alert('Error', response?.message || 'No se pudo eliminar la subcategoría.');
                             }
                         } catch (error: any) {
                             const errorMessage = error.message || '';
@@ -180,11 +184,11 @@ const SubcategoriesScreen: React.FC = () => {
                         setIsLoading(true);
                         try {
                             const response = await apiService.patch(`/subcategories/${subcategory._id}/toggle-status`, {});
-                            if ((response.data as any).success) {
+                            if (isApiSuccess(response, response?.status)) {
                                 Alert.alert('Éxito', 'Estado de la subcategoría actualizado.');
                                 loadData();
                             } else {
-                                Alert.alert('Error', 'No se pudo actualizar el estado de la subcategoría.');
+                                Alert.alert('Error', response?.message || 'No se pudo actualizar el estado de la subcategoría.');
                             }
                         } catch (error: any) {
                             Alert.alert('Error', error.message || 'Ocurrió un error al actualizar el estado.');
@@ -197,15 +201,16 @@ const SubcategoriesScreen: React.FC = () => {
         );
     };
 
-    const getCategoryName = (categoryId: string | Category) => {
-        const id = typeof categoryId === 'object' ? categoryId._id : categoryId;
+    const getCategoryName = (subcategory: Subcategory) => {
+        const catField = subcategory.categoryId ?? (subcategory as any).category;
+        const id = typeof catField === 'object' ? catField._id : catField;
         const category = categories.find(cat => cat._id === id);
         return category ? category.name : 'Sin categoría';
     }
 
     // Renderizar cada subcategoría
     const SubcategoryCard: React.FC<{ subcategory: Subcategory }> = ({ subcategory }) => {
-        const categoryName = getCategoryName(subcategory.categoryId);
+    const categoryName = getCategoryName(subcategory);
         return (
             <View style={globalStyles.userCard}>
                 <View style={globalStyles.userCardHeader}>

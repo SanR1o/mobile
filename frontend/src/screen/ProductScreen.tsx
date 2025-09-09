@@ -1,3 +1,7 @@
+// Utilidad para validar éxito en respuesta API
+function isApiSuccess(response: any, status?: number): boolean {
+    return (response && response.success === true) || (status && (status === 200 || status === 201));
+}
 import React, { useEffect, useState } from "react";
 import { 
     View,
@@ -227,8 +231,8 @@ const ProductsScreen: React.FC = () => {
                 name: formData.name.trim(),
                 shortDescription: formData.shortDescription.trim(),
                 description: formData.description.trim(),
-                categoryId: formData.category,
-                subcategoryId: formData.subcategory,
+                category: formData.category,
+                subcategory: formData.subcategory,
                 slug: formData.slug.trim(),
                 sku: formData.sku.trim(),
                 price: Number(formData.price),
@@ -246,34 +250,33 @@ const ProductsScreen: React.FC = () => {
                     height: formData.height ? Number(formData.height) : undefined,
                 }
             };
-        if (editingProduct) {
-            // Editar producto
-            const response = await apiService.put(`/products/${editingProduct._id}`, ProductData);
-            if ((response.data as any).success) {
-                Alert.alert('Éxito', 'Producto actualizado.');
-                closeModal();
-                loadProducts();
+            let response;
+            if (editingProduct) {
+                // Editar producto
+                response = await apiService.put(`/products/${editingProduct._id}`, ProductData);
+                if (isApiSuccess(response, response?.status)) {
+                    Alert.alert('Éxito', 'Producto actualizado.');
+                    closeModal();
+                    loadProducts();
+                } else {
+                    Alert.alert('Error', response?.message || 'No se pudo actualizar el producto.');
+                }
             } else {
-                Alert.alert('Error', 'No se pudo actualizar el producto.');
+                // Crear nuevo producto
+                response = await apiService.post('/products', ProductData);
+                if (isApiSuccess(response, response?.status)) {
+                    Alert.alert('Éxito', 'Producto creado.');
+                    closeModal();
+                    loadProducts();
+                } else {
+                    Alert.alert('Error', response?.message || 'No se pudo crear el producto.');
+                }
             }
-        } else {
-            // Crear nuevo producto
-            const response = await apiService.post('/products', ProductData);
-            if ((response.data as any).success) {
-                Alert.alert('Éxito', 'Producto creado.');
-                closeModal();
-                loadProducts();
-            } else {
-                Alert.alert('Error', 'No se pudo crear el producto.');
-            }
+        } catch(error) {
+            Alert.alert('Error', 'No se pudo guardar el producto.');
+        } finally {
+            setIsLoading(false);
         }
-    } catch(error) {
-        Alert.alert('Error', 'No se pudo guardar el producto.');
-    } finally {
-        setIsLoading(false);
-        closeModal();
-        loadProducts();
-    }
 };
 
     const handleDelete = async (product: Product) => {
@@ -288,11 +291,11 @@ const ProductsScreen: React.FC = () => {
                         setIsLoading(true);
                         try {
                             const response = await apiService.delete(`/products/${product._id}`);
-                            if ((response.data as any).success) {
+                            if (isApiSuccess(response, response?.status)) {
                                 Alert.alert('Éxito', 'Producto eliminado.');
                                 loadProducts();
                             } else {
-                                Alert.alert('Error', 'No se pudo eliminar el producto.');
+                                Alert.alert('Error', response?.message || 'No se pudo eliminar el producto.');
                             }
                         } catch (error: any) {
                             Alert.alert('Error', error.message || 'Ocurrió un error al eliminar el producto.');
@@ -320,12 +323,12 @@ const ProductsScreen: React.FC = () => {
                         setIsLoading(true);
                         try {
                             const response = await apiService.patch(`/products/${product._id}/toggle-status`, {});
-                                if ((response.data as any).success) {
-                                    Alert.alert('Éxito', 'Estado del producto actualizado.');
-                                    loadProducts();
-                                } else {
-                                    Alert.alert('Error', 'No se pudo actualizar el estado del producto.');
-                                }
+                            if (isApiSuccess(response, response?.status)) {
+                                Alert.alert('Éxito', 'Estado del producto actualizado.');
+                                loadProducts();
+                            } else {
+                                Alert.alert('Error', response?.message || 'No se pudo actualizar el estado del producto.');
+                            }
                         } catch (error: any) {
                             Alert.alert('Error', error.message || 'No se pudo actualizar el estado del producto.');
                         } finally {
@@ -337,20 +340,26 @@ const ProductsScreen: React.FC = () => {
         );
     };
 
-    const getCategoryName = (categoryId: string) => {
-        const category = categories.find(cat => cat._id === categoryId);
+    // Obtiene el nombre de la categoría soportando ambos formatos y campos
+    const getCategoryName = (product: Product) => {
+        const catField = product.categoryId ?? (product as any).category;
+        const id = typeof catField === 'object' ? catField._id : catField;
+        const category = categories.find(cat => cat._id === id);
         return category ? category.name : 'Sin categoría';
     }
 
-    const getSubcategoryName = (subcategoryId: string) => {
-        const subcategory = subcategories.find(sub => sub._id === subcategoryId);
+    // Obtiene el nombre de la subcategoría soportando ambos formatos y campos
+    const getSubcategoryName = (product: Product) => {
+        const subcatField = product.subcategoryId ?? (product as any).subcategory;
+        const id = typeof subcatField === 'object' ? subcatField._id : subcatField;
+        const subcategory = subcategories.find(sub => sub._id === id);
         return subcategory ? subcategory.name : 'Sin subcategoría';
     }
 
     // Renderizar cada producto
     const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
-        const categoryName = getCategoryName(typeof product.categoryId === 'object' ? product.categoryId._id : product.categoryId);
-        const subcategoryName = getSubcategoryName(typeof product.subcategoryId === 'object' ? product.subcategoryId._id : product.subcategoryId);
+    const categoryName = getCategoryName(product);
+    const subcategoryName = getSubcategoryName(product);
         return (
             <View style={globalStyles.userCard}>
                 <View style={globalStyles.userCardHeader}>
@@ -468,99 +477,144 @@ const ProductsScreen: React.FC = () => {
                     alignItems: 'center',
                     padding: spacing.md
                 }}>
-                    <View style={[globalStyles.card, { width: '100%', maxWidth: 400 }]}> 
-                        <View style={globalStyles.cardHeader}>
-                            <Text style={globalStyles.headerTitle}>
-                                {editingProduct ? 'Editar Producto' : 'Nuevo Producto'}
-                            </Text>
-                            <TouchableOpacity 
-                                style={globalStyles.dangerButton}
-                                onPress={closeModal}>
-                                <Text style={globalStyles.dangerButtonText}>X</Text>
-                            </TouchableOpacity>
-                        </View>
-                        <View style={globalStyles.inputContainer}>
-                            <Text style={globalStyles.inputLabel}>
-                                Nombre*
-                            </Text>
-                            <TextInput
-                                style={globalStyles.textInput}
-                                value={formData.name}
-                                onChangeText={(value) => setFormData({ ...formData, name: value })}
-                                placeholder="Nombre del producto"
-                                placeholderTextColor={'#999'}
-                            />
-                        </View>
-                        <View style={globalStyles.inputContainer}>
-                            <Text style={globalStyles.inputLabel}>
-                                Descripción
-                            </Text>
-                            <TextInput
-                                style={[globalStyles.textInput, {height: 80, textAlignVertical: 'top'}]}
-                                value={formData.description}
-                                onChangeText={(value) => setFormData({ ...formData, description: value })}
-                                placeholder="Descripción del producto"
-                                placeholderTextColor={'#999'}
-                                multiline={true}
-                                numberOfLines={3}
-                            />
-                        </View>
-                        <View style={globalStyles.inputContainer}>
-                            <Text style={globalStyles.inputLabel}>
-                                Categoría
-                            </Text>
-                            <Picker
-                                selectedValue={formData.category}
-                                onValueChange={(value) => setFormData({ ...formData, category: value, subcategory: '' })}
-                                style={globalStyles.textInput}
-                            >
-                                <Picker.Item label="Selecciona una categoría" value="" />
-                                {categories.map((cat) => (
-                                    <Picker.Item key={cat._id} label={cat.name} value={cat._id} />
-                                ))}
-                            </Picker>
-                        </View>
-                        <View style={globalStyles.inputContainer}>
-                            <Text style={globalStyles.inputLabel}>
-                                Subcategoría
-                            </Text>
-                            <Picker
-                                selectedValue={formData.subcategory}
-                                onValueChange={(value) => setFormData({ ...formData, subcategory: value })}
-                                style={globalStyles.textInput}
-                                enabled={!!formData.category}
-                            >
-                                <Picker.Item label="Selecciona una subcategoría" value="" />
-                                {subcategories
-                                    .filter(sub => sub.categoryId === formData.category)
-                                    .map(sub => (
-                                        <Picker.Item key={sub._id} label={sub.name} value={sub._id} />
+                    <View style={[globalStyles.card, { width: '100%', maxWidth: 400, maxHeight: '90%' }]}> 
+                        <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
+                            <View style={globalStyles.cardHeader}>
+                                <Text style={globalStyles.headerTitle}>
+                                    {editingProduct ? 'Editar Producto' : 'Nuevo Producto'}
+                                </Text>
+                                <TouchableOpacity 
+                                    style={globalStyles.dangerButton}
+                                    onPress={closeModal}>
+                                    <Text style={globalStyles.dangerButtonText}>X</Text>
+                                </TouchableOpacity>
+                            </View>
+                            <View style={globalStyles.inputContainer}>
+                                <Text style={globalStyles.inputLabel}>Nombre*</Text>
+                                <TextInput
+                                    style={globalStyles.textInput}
+                                    value={formData.name}
+                                    onChangeText={(value) => setFormData({ ...formData, name: value })}
+                                    placeholder="Nombre del producto"
+                                    placeholderTextColor={'#999'}
+                                />
+                            </View>
+                            <View style={globalStyles.inputContainer}>
+                                <Text style={globalStyles.inputLabel}>Resumen</Text>
+                                <TextInput
+                                    style={globalStyles.textInput}
+                                    value={formData.shortDescription}
+                                    onChangeText={(value) => setFormData({ ...formData, shortDescription: value })}
+                                    placeholder="Resumen del producto"
+                                    placeholderTextColor={'#999'}
+                                />
+                            </View>
+                            <View style={globalStyles.inputContainer}>
+                                <Text style={globalStyles.inputLabel}>Descripción</Text>
+                                <TextInput
+                                    style={[globalStyles.textInput, {height: 80, textAlignVertical: 'top'}]}
+                                    value={formData.description}
+                                    onChangeText={(value) => setFormData({ ...formData, description: value })}
+                                    placeholder="Descripción del producto"
+                                    placeholderTextColor={'#999'}
+                                    multiline={true}
+                                    numberOfLines={3}
+                                />
+                            </View>
+                            <View style={globalStyles.inputContainer}>
+                                <Text style={globalStyles.inputLabel}>Precio*</Text>
+                                <TextInput
+                                    style={globalStyles.textInput}
+                                    value={formData.price}
+                                    onChangeText={(value) => setFormData({ ...formData, price: value })}
+                                    placeholder="Precio"
+                                    placeholderTextColor={'#999'}
+                                    keyboardType="numeric"
+                                />
+                            </View>
+                            <View style={globalStyles.inputContainer}>
+                                <Text style={globalStyles.inputLabel}>SKU*</Text>
+                                <TextInput
+                                    style={globalStyles.textInput}
+                                    value={formData.sku}
+                                    onChangeText={(value) => setFormData({ ...formData, sku: value })}
+                                    placeholder="SKU"
+                                    placeholderTextColor={'#999'}
+                                />
+                            </View>
+                            <View style={globalStyles.inputContainer}>
+                                <Text style={globalStyles.inputLabel}>Stock*</Text>
+                                <TextInput
+                                    style={globalStyles.textInput}
+                                    value={formData.stockQuantity}
+                                    onChangeText={(value) => setFormData({ ...formData, stockQuantity: value })}
+                                    placeholder="Cantidad en stock"
+                                    placeholderTextColor={'#999'}
+                                    keyboardType="numeric"
+                                />
+                            </View>
+                            <View style={globalStyles.inputContainer}>
+                                <Text style={globalStyles.inputLabel}>
+                                    Categoría
+                                </Text>
+                                <Picker
+                                    selectedValue={formData.category}
+                                    onValueChange={(value) => setFormData({ ...formData, category: value, subcategory: '' })}
+                                    style={globalStyles.textInput}
+                                >
+                                    <Picker.Item label="Selecciona una categoría" value="" />
+                                    {categories.map((cat) => (
+                                        <Picker.Item key={cat._id} label={cat.name} value={cat._id} />
                                     ))}
-                            </Picker>
-                        </View>
-                        <View style={{flexDirection: 'row', justifyContent: 'flex-end', marginTop: 16}}>
-                            <TouchableOpacity
-                                style={globalStyles.secondaryButton}
-                                onPress={closeModal}
-                                accessibilityLabel="Cancelar"
-                            >
-                                <Text style={globalStyles.secondaryButtonText}>Cancelar</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={[globalStyles.secondaryButton, { marginLeft: 8 }]}
-                                onPress={handleSave}
-                                disabled={isLoading || !formData.name.trim() || !formData.category}
-                                accessibilityLabel={editingProduct ? 'Editar producto' : 'Crear producto'}
-                            >
-                                {isLoading ? (
-                                    <ActivityIndicator color="#fff" size="small" />
-                                ) : (
-                                    <Text style={globalStyles.primaryButtonText}>
-                                        {editingProduct ? 'Editar Producto' : 'Nuevo Producto'}
-                                    </Text>
-                                )}
-                            </TouchableOpacity>
-                        </View>
+                                </Picker>
+                            </View>
+                            <View style={globalStyles.inputContainer}>
+                                <Text style={globalStyles.inputLabel}>
+                                    Subcategoría
+                                </Text>
+                                <Picker
+                                    selectedValue={formData.subcategory}
+                                    onValueChange={(value) => setFormData({ ...formData, subcategory: value })}
+                                    style={globalStyles.textInput}
+                                    enabled={!!formData.category}
+                                >
+                                    <Picker.Item label="Selecciona una subcategoría" value="" />
+                                    {subcategories
+                                        .filter(sub => {
+                                            // Soporta ambos: categoryId y category
+                                            const catField = sub.categoryId ?? (sub as any).category;
+                                            const subCatId = typeof catField === 'object' ? catField._id : catField;
+                                            return String(subCatId) === String(formData.category);
+                                        })
+                                        .map(sub => (
+                                            <Picker.Item key={sub._id} label={sub.name} value={sub._id} />
+                                        ))}
+                                </Picker>
+                            </View>
+                            <View style={{flexDirection: 'row', justifyContent: 'flex-end', marginTop: 16}}>
+                                <TouchableOpacity
+                                    style={globalStyles.secondaryButton}
+                                    onPress={closeModal}
+                                    accessibilityLabel="Cancelar"
+                                >
+                                    <Text style={globalStyles.secondaryButtonText}>Cancelar</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={[globalStyles.secondaryButton, { marginLeft: 8 }]}
+                                    onPress={handleSave}
+                                    disabled={isLoading || !formData.name.trim() || !formData.category}
+                                    accessibilityLabel={editingProduct ? 'Editar producto' : 'Crear producto'}
+                                >
+                                    {isLoading ? (
+                                        <ActivityIndicator color="#fff" size="small" />
+                                    ) : (
+                                        <Text style={globalStyles.primaryButtonText}>
+                                            {editingProduct ? 'Editar Producto' : 'Nuevo Producto'}
+                                        </Text>
+                                    )}
+                                </TouchableOpacity>
+                            </View>
+                        </ScrollView>
                     </View>
                 </View>
             </Modal>

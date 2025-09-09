@@ -175,7 +175,7 @@ const UsersScreen: React.FC = () => {
         if ((response.data as any).success) {
           Alert.alert('Éxito', 'Usuario actualizado correctamente');
           setModalVisible(false);
-          await loadUsers();
+          loadUsers();
         }
       } else {
         // Crear nuevo usuario

@@ -165,25 +165,22 @@ const UsersScreen: React.FC = () => {
           role: formData.role,
           phone: formData.phone.trim(),
         };
-
-        // Solo incluir password si se proporcionó
         if (formData.password.trim()) {
           updateData.password = formData.password;
         }
-
         const response = await apiService.put(`/users/${editingUser._id}`, updateData);
-        if ((response.data as any).success) {
-          Alert.alert('Éxito', 'Usuario actualizado correctamente');
+        if (response.success) {
           setModalVisible(false);
-          loadUsers();
+          await loadUsers();
+          Alert.alert('Éxito', 'Usuario actualizado correctamente');
         }
       } else {
         // Crear nuevo usuario
         const response = await apiService.post('/users', formData);
-        if ((response.data as any).success) {
-          Alert.alert('Éxito', 'Usuario creado correctamente');
+        if (response.success) {
           setModalVisible(false);
           await loadUsers();
+          Alert.alert('Éxito', 'Usuario creado correctamente');
         }
       }
     } catch (error: any) {

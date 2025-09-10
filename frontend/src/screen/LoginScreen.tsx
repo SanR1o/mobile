@@ -1,28 +1,19 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { 
     View,
     Text,
     TextInput,
     ScrollView,
     TouchableOpacity,
-    RefreshControl,
-    Alert,
-    StyleSheet,
     KeyboardAvoidingView,
     Platform,
     ActivityIndicator
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useAuth } from "../context/AuthContext";
 import { useNavigation } from "@react-navigation/native";
-import { apiService } from '../services/api';
-import { User, LoginCredentials, LoginResponse } from '../types';
-import { globalStyles, componentStyles, colors, spacing } from "../styles"
-import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
-import { MainTabParamList } from '../types';
+import {LoginCredentials} from '../types';
+import { globalStyles} from "../styles"
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
 
@@ -146,8 +137,8 @@ const LoginScreen: React.FC = () => {
                 </TouchableOpacity>
                 <View style={globalStyles.loginInfoContainer}>
                     <Text style={globalStyles.loginDemoText}>
-                        Admin: admin / admin123 {'\n'}
-                        Coordinador: coordinador / coord123 {'\n'}
+                        Admin: admin@correo.com / admin123 {'\n'}
+                        Coordinador: coordinador@correo.com / coord123 {'\n'}
                     </Text>
                 </View>
             </ScrollView>
